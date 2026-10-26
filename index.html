@@ -1304,7 +1304,8 @@
       resize(width, height, isMobile = false) {
         this.width = width;
         this.height = height;
-        const bottomOffset = isMobile ? 150 : 60;
+        // Lift ground well clear above the 148px mobile touch dock
+        const bottomOffset = isMobile ? 185 : 60;
         this.groundY = height - bottomOffset;
         this.generateBuildings();
         this.stars = [];
@@ -1552,6 +1553,9 @@
             this.humans.forEach(h => {
               h.worldWidth = this.width;
               h.groundY = this.world.groundY;
+              if (h.state === 'WALKING') {
+                h.y = this.world.groundY;
+              }
               if (h.x > this.width - 30) h.x = this.width - 30;
             });
           }
