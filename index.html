@@ -95,50 +95,49 @@
       </div>
     </header>
 
-    <!-- Upper Center Controls HUD (Desktop/PC ONLY: Centered, larger, and hidden on mobile/touch) -->
-    <div id="controls-panel" class="absolute top-12 left-1/2 -translate-x-1/2 z-20 pointer-events-auto bg-slate-900/95 border-2 border-cyan-500/50 backdrop-blur-md rounded-2xl p-3.5 text-sm text-slate-100 min-w-[340px] max-w-md shadow-2xl shadow-cyan-950/60 transition-all duration-200 hidden">
-      <div class="flex items-center justify-between border-b border-slate-700/80 pb-1.5 gap-3">
-        <div class="text-xs sm:text-sm font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-          <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> Saucer Flight Controls
+    <!-- Upper Center Controls HUD (Desktop/PC ONLY: Centered, significantly larger, and hidden on mobile/touch) -->
+    <div id="controls-panel" class="absolute top-12 left-1/2 -translate-x-1/2 z-20 pointer-events-auto bg-slate-900/95 border-2 border-cyan-500/60 backdrop-blur-md rounded-2xl p-4 text-base text-slate-100 min-w-[390px] max-w-lg shadow-2xl shadow-cyan-950/70 transition-all duration-200 hidden">
+      <div class="flex items-center justify-between border-b border-slate-700/80 pb-2 gap-3">
+        <div class="text-sm sm:text-base font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span> Saucer Flight Controls
         </div>
-        <button id="btn-toggle-controls" class="text-slate-300 hover:text-cyan-300 text-xs font-mono px-2 py-0.5 rounded-lg bg-slate-800 border border-slate-700 transition">
+        <button id="btn-toggle-controls" class="text-slate-300 hover:text-cyan-300 text-xs sm:text-sm font-mono px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 transition">
           Hide ▲
         </button>
       </div>
-      <div id="controls-body" class="flex flex-col gap-2 text-xs sm:text-sm mt-2 font-medium">
-        <div class="flex items-center justify-between gap-3">
+      <div id="controls-body" class="flex flex-col gap-2.5 text-sm sm:text-base mt-2.5 font-medium">
+        <div class="flex items-center justify-between gap-4">
           <span class="text-slate-300 font-bold">Flight:</span>
-          <div class="flex items-center gap-1">
-            <kbd class="px-2 py-0.5 bg-slate-800 border border-slate-600 rounded-md text-amber-300 font-mono font-bold text-xs shadow-sm">WASD</kbd>
+          <div class="flex items-center gap-1.5">
+            <kbd class="px-2.5 py-1 bg-slate-800 border border-slate-600 rounded-md text-amber-300 font-mono font-bold text-sm shadow">WASD</kbd>
             <span class="text-slate-400 text-xs">/</span>
-            <kbd class="px-2 py-0.5 bg-slate-800 border border-slate-600 rounded-md text-amber-300 font-mono font-bold text-xs shadow-sm">ARROWS</kbd>
+            <kbd class="px-2.5 py-1 bg-slate-800 border border-slate-600 rounded-md text-amber-300 font-mono font-bold text-sm shadow">ARROWS</kbd>
           </div>
         </div>
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center justify-between gap-4">
           <span class="text-slate-300 font-bold">Scan Card:</span>
-          <div class="flex items-center gap-1">
-            <kbd class="px-2 py-0.5 bg-slate-800 border border-cyan-600 rounded-md text-cyan-300 font-mono font-bold text-xs shadow-sm">SPACE</kbd>
+          <div class="flex items-center gap-1.5">
+            <kbd class="px-2.5 py-1 bg-slate-800 border border-cyan-600 rounded-md text-cyan-300 font-mono font-bold text-sm shadow">SPACE</kbd>
             <span class="text-slate-400 text-xs">/</span>
-            <kbd class="px-2 py-0.5 bg-slate-800 border border-cyan-600 rounded-md text-cyan-300 font-mono font-bold text-xs shadow-sm">Q</kbd>
+            <kbd class="px-2.5 py-1 bg-slate-800 border border-cyan-600 rounded-md text-cyan-300 font-mono font-bold text-sm shadow">Q</kbd>
             <span class="text-slate-400 text-xs">/</span>
-            <kbd class="px-2 py-0.5 bg-slate-800 border border-cyan-600 rounded-md text-cyan-300 font-mono font-bold text-xs shadow-sm">R-Click</kbd>
+            <kbd class="px-2.5 py-1 bg-slate-800 border border-cyan-600 rounded-md text-cyan-300 font-mono font-bold text-sm shadow">R-Click</kbd>
           </div>
         </div>
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center justify-between gap-4">
           <span class="text-slate-300 font-bold">Tractor Beam:</span>
-          <div class="flex items-center gap-1">
-            <kbd class="px-2 py-0.5 bg-slate-800 border border-lime-600 rounded-md text-lime-400 font-mono font-bold text-xs shadow-sm">E</kbd>
+          <div class="flex items-center gap-1.5">
+            <kbd class="px-2.5 py-1 bg-slate-800 border border-lime-600 rounded-md text-lime-400 font-mono font-bold text-sm shadow">E</kbd>
             <span class="text-slate-400 text-xs">/</span>
-            <kbd class="px-2 py-0.5 bg-slate-800 border border-lime-600 rounded-md text-lime-400 font-mono font-bold text-xs shadow-sm">L-Click (Hold)</kbd>
+            <kbd class="px-2.5 py-1 bg-slate-800 border border-lime-600 rounded-md text-lime-400 font-mono font-bold text-sm shadow">L-Click (Hold)</kbd>
           </div>
         </div>
-        <div class="pt-1.5 border-t border-slate-800 text-[11px] text-amber-300/90 leading-tight">
+        <div class="pt-2 border-t border-slate-800 text-xs text-amber-300/95 leading-normal">
           💡 Releasing beam safely parachutes target without penalty. Jail triggers ONLY upon completed abduction!
         </div>
       </div>
     </div>
 
-    <!-- Live Scanner HUD Popout (Top Center) -->
     <!-- Live Scanner HUD Popout (Top Center) -->
     <div id="scanner-hud" class="absolute top-12 left-1/2 -translate-x-1/2 z-20 pointer-events-none transition-all duration-200 opacity-0 transform -translate-y-2">
       <div id="scanner-hud-card" class="bg-slate-900/95 border-2 rounded-2xl px-4 py-2 backdrop-blur-lg flex items-center gap-3 shadow-2xl">
@@ -150,27 +149,33 @@
       </div>
     </div>
 
-    <!-- On-Screen Mobile Touch Controls: Positioned at mid-screen (top-1/2 -translate-y-1/2) for natural ergonomics and zero pedestrian overlap -->
-    <div id="mobile-touch-controls" class="absolute top-1/2 -translate-y-1/2 left-3 right-3 z-30 flex justify-between items-center pointer-events-none hidden">
-      <!-- Left: Mid-Screen Ergonomic D-Pad Directionals -->
-      <div class="pointer-events-auto grid grid-cols-3 gap-1.5 bg-slate-900/90 p-2 rounded-3xl border-2 border-cyan-500/50 backdrop-blur-md shadow-2xl shadow-cyan-950/60">
+    <!-- On-Screen Mobile Touch Controls: Positioned strictly BELOW the street (bottom dock) to eliminate gameplay overlap -->
+    <div id="mobile-touch-controls" class="absolute bottom-0 left-0 right-0 h-[148px] z-30 flex justify-between items-center px-4 bg-slate-950/95 border-t-2 border-cyan-500/60 backdrop-blur-md shadow-2xl shadow-cyan-950/80 pointer-events-auto hidden">
+      <!-- Left: Ergonomic D-Pad Directionals -->
+      <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-700">
         <div></div>
-        <button id="touch-up" class="w-11 h-11 bg-slate-800/90 active:bg-cyan-600 text-cyan-300 rounded-2xl font-bold flex items-center justify-center text-base shadow border border-slate-700/80">▲</button>
+        <button id="touch-up" class="w-12 h-10 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-xl font-bold flex items-center justify-center text-lg shadow border border-slate-700">▲</button>
         <div></div>
-        <button id="touch-left" class="w-11 h-11 bg-slate-800/90 active:bg-cyan-600 text-cyan-300 rounded-2xl font-bold flex items-center justify-center text-base shadow border border-slate-700/80">◀</button>
-        <button id="touch-down" class="w-11 h-11 bg-slate-800/90 active:bg-cyan-600 text-cyan-300 rounded-2xl font-bold flex items-center justify-center text-base shadow border border-slate-700/80">▼</button>
-        <button id="touch-right" class="w-11 h-11 bg-slate-800/90 active:bg-cyan-600 text-cyan-300 rounded-2xl font-bold flex items-center justify-center text-base shadow border border-slate-700/80">▶</button>
+        <button id="touch-left" class="w-12 h-10 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-xl font-bold flex items-center justify-center text-lg shadow border border-slate-700">◀</button>
+        <button id="touch-down" class="w-12 h-10 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-xl font-bold flex items-center justify-center text-lg shadow border border-slate-700">▼</button>
+        <button id="touch-right" class="w-12 h-10 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-xl font-bold flex items-center justify-center text-lg shadow border border-slate-700">▶</button>
       </div>
 
-      <!-- Right: Mid-Screen Action Buttons (Scan & Beam) -->
-      <div class="pointer-events-auto flex flex-col gap-2 bg-slate-900/90 p-2 rounded-3xl border-2 border-cyan-500/50 backdrop-blur-md shadow-2xl shadow-cyan-950/60">
-        <button id="touch-scan" class="w-14 h-14 bg-cyan-600/90 active:bg-cyan-400 text-white rounded-2xl font-bold flex flex-col items-center justify-center shadow-lg border border-cyan-300 text-xs">
-          <span class="text-xl leading-none">🔍</span>
-          <span class="mt-0.5 font-mono text-[10px]">SCAN</span>
+      <!-- Center Guidance Badge -->
+      <div class="hidden xs:flex flex-col items-center justify-center text-center px-1">
+        <span class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Flight Deck</span>
+        <span class="text-[9px] text-slate-400">Controls Dock</span>
+      </div>
+
+      <!-- Right: Action Buttons (Scan & Beam) -->
+      <div class="flex gap-2.5 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-700">
+        <button id="touch-scan" class="w-16 h-20 bg-cyan-600 active:bg-cyan-400 text-white rounded-2xl font-bold flex flex-col items-center justify-center shadow-lg border-2 border-cyan-300">
+          <span class="text-2xl leading-none">🔍</span>
+          <span class="mt-1 font-mono text-xs font-bold">SCAN</span>
         </button>
-        <button id="touch-beam" class="w-14 h-14 bg-lime-600/90 active:bg-lime-400 text-white rounded-2xl font-bold flex flex-col items-center justify-center shadow-lg border border-lime-300 text-xs">
-          <span class="text-xl leading-none">⚡</span>
-          <span class="mt-0.5 font-mono text-[10px]">BEAM</span>
+        <button id="touch-beam" class="w-16 h-20 bg-lime-600 active:bg-lime-400 text-white rounded-2xl font-bold flex flex-col items-center justify-center shadow-lg border-2 border-lime-300">
+          <span class="text-2xl leading-none">⚡</span>
+          <span class="mt-1 font-mono text-xs font-bold">BEAM</span>
         </button>
       </div>
     </div>
@@ -278,9 +283,6 @@
         </div>
 
         <div class="flex-1 overflow-y-auto mb-3 border border-slate-800 rounded-xl bg-slate-950 p-2 min-h-[160px]">
-          <div id="leaderboard-loading" class="text-center text-cyan-400 text-xs py-6 font-mono hidden">
-            <span class="inline-block animate-spin mr-1">🪐</span> Syncing Galactic Database...
-          </div>
           <table id="leaderboard-table" class="w-full text-left text-xs font-mono">
             <thead>
               <tr class="text-slate-400 border-b border-slate-800 text-[10px] uppercase">
@@ -302,13 +304,12 @@
 
   </div>
 
-  <!-- Firebase SDK for persistent cloud leaderboard across users & devices -->
+  <!-- Cloud Database Integration for cross-device high scores -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Global High Score Cloud Store
     class CloudLeaderboard {
       constructor() {
         this.records = [
@@ -382,7 +383,6 @@
       }
 
       async submitScore(name, city, score) {
-        // Always record locally immediately
         this.records.push({ name, city, score, timestamp: Date.now() });
         this.records.sort((a, b) => b.score - a.score);
         this.records = this.records.slice(0, 10);
@@ -499,7 +499,7 @@
 
               this.modulator = this.ctx.createOscillator();
               this.modulator.type = 'sine';
-              this.modulator.frequency.setValueAtTime(16, t); // 16 Hz FM sci-fi wobble
+              this.modulator.frequency.setValueAtTime(16, t);
 
               this.modGain = this.ctx.createGain();
               this.modGain.gain.setValueAtTime(60, t);
@@ -537,7 +537,6 @@
         } catch (e) {}
       }
 
-      // Human panic scream: pitches higher as distance to saucer decreases
       playHumanDistress(heightFactor) {
         if (!this.enabled || !this.ctx) return;
         const now = performance.now();
@@ -575,7 +574,6 @@
         } catch (e) {}
       }
 
-      // Sigh of relief when safely released
       playReliefSigh() {
         if (!this.enabled || !this.ctx) return;
         try {
@@ -649,7 +647,7 @@
 
     const sound = new SoundEngine();
 
-    // --- Profanity Filter & High Score Manager ---
+    // Obscenity Filter & Sanitizer
     const BANNED_WORDS = [
       'ASS', 'BITCH', 'SHIT', 'FUCK', 'DAMN', 'CRAP', 'DICK', 'COCK', 'PISS',
       'CUNT', 'BASTARD', 'SLUT', 'WHORE', 'NAZI', 'HITLER', 'KKK', 'NIGG', 'FAG'
@@ -778,7 +776,7 @@
 
     const registry = new UniqueNameRegistry();
 
-    // --- Human Entity (30s Timer, 50/50 Card Ratio, Visual Indicators) ---
+    // Human Entity
     class Human {
       constructor(x, groundY, worldWidth) {
         this.worldWidth = worldWidth;
@@ -799,7 +797,6 @@
         this.hasDoNotAbductCard = Math.random() < 0.50;
         this.isScanned = false;
 
-        // Randomized speed and direction: direction (-1 or 1), base speed between 0.35 and 1.35
         const direction = Math.random() < 0.5 ? -1 : 1;
         const randomSpeed = 0.35 + Math.random() * 1.0;
         this.vx = direction * randomSpeed;
@@ -831,7 +828,6 @@
 
         if (this.state === 'WALKING') {
           this.x += this.vx;
-          // Mark offscreen once they have completely exited either screen edge
           if (this.vx < 0 && this.x < -30) {
             this.isOffscreen = true;
           } else if (this.vx > 0 && this.x > this.worldWidth + 30) {
@@ -839,7 +835,6 @@
           }
           this.y = this.groundY;
         } else if (this.state === 'FALLING') {
-          // Parachute drift physics
           this.fallSpeed += 0.28;
           this.y += this.fallSpeed;
           if (this.y >= this.groundY) {
@@ -858,7 +853,6 @@
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Targeted isolation spotlight ring on ground
         if (isTargeted) {
           ctx.beginPath();
           ctx.ellipse(0, 0, 18, 6, 0, 0, Math.PI * 2);
@@ -869,7 +863,6 @@
           ctx.stroke();
         }
 
-        // Parachute if drifting down
         if (this.state === 'FALLING' && this.y < this.groundY - 25) {
           ctx.beginPath();
           ctx.arc(0, -this.height - 18, 14, Math.PI, 0, false);
@@ -907,7 +900,7 @@
         ctx.lineTo(4 - (this.state === 'WALKING' ? legOff : -2), bodyY + 32);
         ctx.stroke();
 
-        // Torso / Suit
+        // Torso / Suit with sharp contrast outline
         ctx.fillStyle = this.suitColor;
         ctx.beginPath();
         ctx.roundRect(-6, bodyY + 9, 12, 13, [3, 3, 2, 2]);
@@ -916,7 +909,7 @@
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Head with crisp bright outline
+        // Head with bold outline
         ctx.fillStyle = '#fef08a';
         ctx.beginPath();
         ctx.arc(0, bodyY + 5, 5, 0, Math.PI * 2);
@@ -925,7 +918,7 @@
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Hats with bold outlines
+        // Hats
         if (this.hat === 'straw') {
           ctx.fillStyle = '#facc15';
           ctx.fillRect(-8, bodyY + 1, 16, 2.5);
@@ -968,7 +961,7 @@
           ctx.strokeRect(-5, bodyY, 10, 3);
         }
 
-        // Overhead Scanned Hologram Badge
+        // Scanned Hologram Badge
         if (this.isScanned) {
           const badgeY = bodyY - 18;
           if (this.hasDoNotAbductCard) {
@@ -1008,11 +1001,11 @@
           }
         }
 
-        // Distress / Relief Speech Bubble
+        // Speech Bubble
         if (this.bubbleTimer > 0) {
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.roundRect(-28, bodyY - 42, 56, 16, 4);
+          ctx.roundRect(-32, bodyY - 42, 64, 16, 4);
           ctx.fill();
           ctx.strokeStyle = this.state === 'LIFTING' ? '#ef4444' : '#10b981';
           ctx.lineWidth = 1.5;
@@ -1028,7 +1021,7 @@
       }
     }
 
-    // --- Flying Saucer Player Class (Full Screen Width & Optimized Vertical Bounds) ---
+    // Flying Saucer Player Class
     class FlyingSaucer {
       constructor(width, height, groundY) {
         this.updateBounds(width, height, groundY);
@@ -1049,14 +1042,10 @@
         this.height = height;
         this.groundY = groundY;
 
-        // Full Screen Width: Saucer spans from edge to edge (saucer half-width margin = 44px)
         const saucerHalfWidth = 44;
         this.minX = saucerHalfWidth;
         this.maxX = width - saucerHalfWidth;
-
-        // Reduced upper empty space: ceiling starts right below the compact top info bar (~65px)
         this.minY = 65;
-        // Allows UFO to descend close to the ground
         this.maxY = groundY - 70;
       }
 
@@ -1083,7 +1072,6 @@
         this.x += this.vx;
         this.y += this.vy;
 
-        // Clamp to restricted flying airspace
         if (this.x < this.minX) { this.x = this.minX; this.vx = 0; }
         if (this.x > this.maxX) { this.x = this.maxX; this.vx = 0; }
         if (this.y < this.minY) { this.y = this.minY; this.vy = 0; }
@@ -1109,7 +1097,7 @@
       draw(ctx) {
         const cone = this.getBeamCone();
 
-        // 1. Faint Visual Boundary of Shrunk Flight Airspace
+        // Airspace visual dashed line
         ctx.save();
         ctx.strokeStyle = 'rgba(6, 182, 212, 0.18)';
         ctx.lineWidth = 1.5;
@@ -1118,7 +1106,7 @@
         ctx.setLineDash([]);
         ctx.restore();
 
-        // 2. Scanner Cone (Cyan)
+        // Scanner Cone (Cyan)
         if (this.scannerActive) {
           ctx.save();
           const scanGrad = ctx.createLinearGradient(this.x, this.y, this.x, this.groundY);
@@ -1134,7 +1122,6 @@
           ctx.closePath();
           ctx.fill();
 
-          // Scanning sweep beam
           const sweepY = this.y + ((Date.now() / 4) % (this.groundY - this.y));
           const sweepW = 10 + (sweepY - this.y) * 0.28;
           ctx.strokeStyle = '#67e8f9';
@@ -1152,7 +1139,7 @@
           ctx.restore();
         }
 
-        // 3. Tractor Beam Cone (Neon Green / Lime FM Plasma)
+        // Tractor Beam Cone
         if (this.tractorActive) {
           ctx.save();
           const tractorGrad = ctx.createLinearGradient(this.x, this.y, this.x, this.groundY);
@@ -1169,7 +1156,6 @@
           ctx.closePath();
           ctx.fill();
 
-          // Animated plasma rings moving upwards
           const ringSpacing = 32;
           const offset = (Date.now() / 22) % ringSpacing;
           for (let ry = this.groundY - offset; ry > this.y + 15; ry -= ringSpacing) {
@@ -1189,7 +1175,7 @@
           ctx.restore();
         }
 
-        // 4. Flying Saucer Ship
+        // Flying Saucer Body
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.tilt);
@@ -1204,7 +1190,7 @@
         ctx.arc(0, -5, 17, Math.PI, 0, false);
         ctx.fill();
 
-        // Tiny Alien Pilot
+        // Alien Pilot
         ctx.fillStyle = '#065f46';
         ctx.beginPath();
         ctx.arc(0, -7, 5, 0, Math.PI * 2);
@@ -1213,7 +1199,7 @@
         ctx.fillRect(-2, -8, 1.5, 2);
         ctx.fillRect(1, -8, 1.5, 2);
 
-        // Saucer Metallic Body
+        // Hull
         const hull = ctx.createLinearGradient(-44, 0, 44, 0);
         hull.addColorStop(0, '#475569');
         hull.addColorStop(0.2, '#94a3b8');
@@ -1228,13 +1214,13 @@
         ctx.strokeStyle = '#334155';
         ctx.stroke();
 
-        // Lower Hatch Hub
+        // Lower Hatch
         ctx.fillStyle = '#1e293b';
         ctx.beginPath();
         ctx.ellipse(0, 10, 18, 6, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Rotating Running Lights
+        // Running Lights
         for (let i = 0; i < 7; i++) {
           const angle = (i / 7) * Math.PI + (this.pulse * 0.4);
           const lx = Math.cos(angle) * 36;
@@ -1247,7 +1233,7 @@
           ctx.fill();
         }
 
-        // Hatch Core Center Glow
+        // Hatch Core
         ctx.beginPath();
         ctx.arc(0, 11, 4, 0, Math.PI * 2);
         ctx.fillStyle = this.tractorActive ? '#a3e635' : (this.scannerActive ? '#38bdf8' : '#e2e8f0');
@@ -1257,10 +1243,11 @@
       }
     }
 
-    // --- Scenery & Starfield ---
+    // Scenery & Background World
     class StarfieldWorld {
       constructor(width, height) {
         this.buildings = [];
+        this.stars = [];
         this.resize(width, height);
       }
 
@@ -1271,10 +1258,9 @@
 
         for (let i = 0; i < numBuildings; i++) {
           const bWidth = segWidth * (0.65 + Math.random() * 0.28);
-          const bHeight = 120 + Math.random() * 170; // Tall ground-level buildings
+          const bHeight = 120 + Math.random() * 170;
           const bX = i * segWidth + (segWidth - bWidth) / 2;
 
-          // Building colors in retro cyberpunk night palettes
           const colors = [
             { body: '#040714', trim: '#0e172a', litWindow: '#0284c7' },
             { body: '#050a18', trim: '#111e38', litWindow: '#ca8a04' },
@@ -1283,7 +1269,6 @@
           ];
           const theme = colors[i % colors.length];
 
-          // Randomized window lit states
           const rows = Math.floor(bHeight / 24);
           const cols = Math.max(2, Math.floor(bWidth / 18));
           const windows = [];
@@ -1293,7 +1278,6 @@
             }
           }
 
-          // Door at ground level where humans emerge
           const doorWidth = 24;
           const doorHeight = 32;
           const doorX = bX + (bWidth - doorWidth) / 2;
@@ -1317,10 +1301,11 @@
         }
       }
 
-      resize(width, height) {
+      resize(width, height, isMobile = false) {
         this.width = width;
         this.height = height;
-        this.groundY = height - 60;
+        const bottomOffset = isMobile ? 150 : 60;
+        this.groundY = height - bottomOffset;
         this.generateBuildings();
         this.stars = [];
         for (let i = 0; i < 80; i++) {
@@ -1335,7 +1320,7 @@
       }
 
       draw(ctx) {
-        // Sci-Fi Night Sky Gradient
+        // Sky
         const sky = ctx.createLinearGradient(0, 0, 0, this.groundY);
         sky.addColorStop(0, '#020617');
         sky.addColorStop(0.5, '#0b0f2a');
@@ -1351,7 +1336,6 @@
         ctx.shadowColor = '#fef08a';
         ctx.shadowBlur = 20;
         ctx.fill();
-        ctx.shadowBlur = 0;
         ctx.restore();
 
         // Stars
@@ -1362,7 +1346,7 @@
           ctx.fillRect(s.x, s.y, s.size, s.size);
         });
 
-        // Distant Mountains / Hills
+        // Distant Mountains
         ctx.fillStyle = '#060a16';
         ctx.beginPath();
         ctx.moveTo(0, this.groundY);
@@ -1374,10 +1358,10 @@
         ctx.closePath();
         ctx.fill();
 
-        // Tall Background Buildings at Ground Level
+        // Buildings
         this.drawTallBuildings(ctx);
 
-        // Ground Sidewalk Backlight / Atmosphere Glow for high contrast
+        // Ground Sidewalk Backlight
         const sidewalkGlow = ctx.createLinearGradient(0, this.groundY - 50, 0, this.groundY);
         sidewalkGlow.addColorStop(0, 'rgba(2, 6, 23, 0)');
         sidewalkGlow.addColorStop(0.5, 'rgba(15, 23, 42, 0.7)');
@@ -1385,7 +1369,7 @@
         ctx.fillStyle = sidewalkGlow;
         ctx.fillRect(0, this.groundY - 50, this.width, 50);
 
-        // Ground / Pavement
+        // Ground
         ctx.fillStyle = '#090d16';
         ctx.fillRect(0, this.groundY, this.width, this.height - this.groundY);
         ctx.strokeStyle = '#22d3ee';
@@ -1395,7 +1379,7 @@
         ctx.lineTo(this.width, this.groundY);
         ctx.stroke();
 
-        // Street dashed center lines
+        // Street dashed lines
         ctx.save();
         ctx.strokeStyle = 'rgba(250, 204, 21, 0.4)';
         ctx.setLineDash([15, 15]);
@@ -1411,14 +1395,13 @@
         this.buildings.forEach(b => {
           const bTop = this.groundY - b.height;
 
-          // Building facade with subtle border
           ctx.fillStyle = b.theme.body;
           ctx.fillRect(b.x, bTop, b.width, b.height);
           ctx.strokeStyle = b.theme.trim;
           ctx.lineWidth = 1.5;
           ctx.strokeRect(b.x, bTop, b.width, b.height);
 
-          // Roof antenna / spire
+          // Roof antenna
           ctx.beginPath();
           ctx.moveTo(b.x + b.width / 2, bTop);
           ctx.lineTo(b.x + b.width / 2, bTop - 18);
@@ -1426,13 +1409,13 @@
           ctx.lineWidth = 2;
           ctx.stroke();
 
-          // Blinking red roof beacon
+          // Blinking beacon
           ctx.beginPath();
           ctx.arc(b.x + b.width / 2, bTop - 18, 2.5, 0, Math.PI * 2);
           ctx.fillStyle = (Date.now() % 1000 < 500) ? '#ef4444' : '#7f1d1d';
           ctx.fill();
 
-          // Illuminated Windows Grid
+          // Windows
           const cellW = (b.width - 12) / b.cols;
           const cellH = (b.height - 48) / b.rows;
           let winIdx = 0;
@@ -1457,7 +1440,7 @@
             }
           }
 
-          // Ground Level Entrance Doorway with Light
+          // Door
           const d = b.door;
           ctx.fillStyle = '#010309';
           ctx.fillRect(d.x, d.y, d.width, d.height);
@@ -1465,7 +1448,6 @@
           ctx.lineWidth = 1;
           ctx.strokeRect(d.x, d.y, d.width, d.height);
 
-          // Subtle entrance light spill
           const doorGrad = ctx.createLinearGradient(d.centerX, d.y, d.centerX, this.groundY);
           doorGrad.addColorStop(0, 'rgba(250, 204, 21, 0.3)');
           doorGrad.addColorStop(1, 'rgba(250, 204, 21, 0.05)');
@@ -1475,19 +1457,13 @@
       }
     }
 
-    // --- Main Game Engine ---
+    // Main Game Controller
     class GameController {
       constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
         this.humans = [];
         this.targetHumanCount = 0;
-        this.isTouchDevice = this.detectDeviceType();
-        this.setupDeviceUI();
-        this.resize();
-
-        this.world = new StarfieldWorld(this.width, this.height);
-        this.saucer = new FlyingSaucer(this.width, this.height, this.world.groundY);
         this.score = 0;
         this.state = 'START';
         this.targetedHuman = null;
@@ -1501,7 +1477,13 @@
           tractor: false
         };
 
-        // Determine population dynamically based on screen width (PC vs Tablet vs Mobile)
+        this.isTouchDevice = this.detectDeviceType();
+        this.setupDeviceUI();
+        this.resize();
+
+        this.world = new StarfieldWorld(this.width, this.height);
+        this.saucer = new FlyingSaucer(this.width, this.height, this.world.groundY);
+
         this.targetHumanCount = this.calculateHumanCount(this.width);
         this.initHumans(this.targetHumanCount);
         this.bindEvents();
@@ -1524,53 +1506,39 @@
         const mobileControls = document.getElementById('mobile-touch-controls');
 
         if (this.isTouchDevice) {
-          // On mobile / tablet devices:
           if (mobileControls) mobileControls.classList.remove('hidden');
           if (pcControls) pcControls.classList.add('hidden');
         } else {
-          // On desktop / PC devices:
           if (mobileControls) mobileControls.classList.add('hidden');
           if (pcControls) pcControls.classList.remove('hidden');
         }
       }
 
       calculateHumanCount(screenWidth) {
-        // Mobile portrait (<640px): 12 humans to avoid clutter on small screens
-        // Tablets / small laptops (640px - 1024px): 18-22 humans
-        // Desktop / PC widescreen (>1024px): 28-36 humans depending on resolution
-        if (screenWidth < 640) {
-          return 12;
-        } else if (screenWidth < 1024) {
-          return 20;
-        } else if (screenWidth < 1440) {
-          return 28;
-        } else {
-          return 34;
-        }
+        if (screenWidth < 640) return 12;
+        if (screenWidth < 1024) return 20;
+        if (screenWidth < 1440) return 28;
+        return 34;
       }
 
       resize() {
-        const prevWidth = this.width;
         this.width = window.innerWidth;
         this.height = window.innerHeight;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
 
-        // Re-evaluate device UI in case screen or emulation mode changed
         this.isTouchDevice = this.detectDeviceType();
         this.setupDeviceUI();
 
-        if (this.world) this.world.resize(this.width, this.height);
+        if (this.world) this.world.resize(this.width, this.height, this.isTouchDevice);
         if (this.saucer && this.world) {
           this.saucer.updateBounds(this.width, this.height, this.world.groundY);
         }
 
-        // Adjust human population if screen size category changes (e.g., orientation change or window resize)
         if (this.humans) {
           const newTargetCount = this.calculateHumanCount(this.width);
           if (this.targetHumanCount && newTargetCount !== this.targetHumanCount) {
             this.targetHumanCount = newTargetCount;
-            // Spawn extra or trim if needed
             while (this.humans.length < this.targetHumanCount) {
               this.spawnNewHuman();
             }
@@ -1580,7 +1548,6 @@
             }
           }
 
-          // Keep existing humans clamped to the resized ground boundary and world width
           if (this.world) {
             this.humans.forEach(h => {
               h.worldWidth = this.width;
@@ -1604,24 +1571,22 @@
         let direction;
 
         if (initialScatter) {
-          // At game start, disperse humans along the sidewalk moving towards their chosen screen edge
           spawnX = Math.random() * (this.width - 80) + 40;
           direction = spawnX < this.width / 2 ? -1 : 1;
         } else {
-          // Pick a random building doorway to emerge from
-          const buildings = this.world.buildings;
+          const buildings = this.world ? this.world.buildings : null;
           if (buildings && buildings.length > 0) {
             const chosenBuilding = buildings[Math.floor(Math.random() * buildings.length)];
             spawnX = chosenBuilding.door.centerX;
           } else {
             spawnX = this.width / 2;
           }
-          // Move toward the nearest or chosen screen edge to walk offscreen
           direction = spawnX < this.width / 2 ? -1 : 1;
-          if (Math.random() < 0.25) direction *= -1; // occasional counter-flow traffic
+          if (Math.random() < 0.25) direction *= -1;
         }
 
-        const newH = new Human(spawnX, this.world.groundY, this.width);
+        const groundLevel = this.world ? this.world.groundY : this.height - 60;
+        const newH = new Human(spawnX, groundLevel, this.width);
         newH.vx = direction * (0.45 + Math.random() * 0.95);
         this.humans.push(newH);
       }
@@ -1693,7 +1658,7 @@
 
         this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-        // Mobile Controls Helper
+        // Mobile Controls
         const bindButton = (id, onDown, onUp) => {
           const el = document.getElementById(id);
           if (!el) return;
@@ -1863,10 +1828,12 @@
       }
 
       updateHUD() {
-        document.getElementById('hud-score').textContent = String(this.score).padStart(3, '0');
+        const el = document.getElementById('hud-score');
+        if (el) el.textContent = String(this.score).padStart(3, '0');
         const records = loadHighScores();
         const top = records.length > 0 ? records[0].score : 0;
-        document.getElementById('hud-top-score').textContent = String(top).padStart(3, '0');
+        const topEl = document.getElementById('hud-top-score');
+        if (topEl) topEl.textContent = String(top).padStart(3, '0');
       }
 
       update(dt) {
@@ -1880,7 +1847,6 @@
 
         const cone = this.saucer.getBeamCone();
 
-        // Pinpoint focused target under UFO beam cone
         let candidate = null;
         let shortestDist = 9999;
 
@@ -1898,7 +1864,7 @@
 
         this.targetedHuman = candidate;
 
-        // 1. Scanner Logic
+        // Scanner Logic
         if (this.inputs.scanner && this.targetedHuman) {
           this.targetedHuman.isScanned = true;
           this.showScannerHUD(this.targetedHuman);
@@ -1906,13 +1872,10 @@
           this.hideScannerHUD();
         }
 
-        // 2. Tractor Beam Logic
-        // SOLE TARGET MANDATE: Only ONE human can ever be beamed up at a time!
-        // Any human in mid-air who is NOT the designated targeted human immediately falls back with parachute.
+        // Tractor Beam Logic (Sole Target Mandate)
         if (this.inputs.tractor) {
           const currentSoleTarget = this.targetedHuman;
 
-          // Immediately drop any human who is not the sole current target
           this.humans.forEach(h => {
             if (h !== currentSoleTarget && h.state === 'LIFTING') {
               h.state = 'FALLING';
@@ -1922,7 +1885,7 @@
           if (currentSoleTarget) {
             currentSoleTarget.state = 'LIFTING';
             currentSoleTarget.x += (this.saucer.x - currentSoleTarget.x) * 0.16;
-            currentSoleTarget.y -= 3.6; // Identical lift speed
+            currentSoleTarget.y -= 3.6;
 
             const totalDist = this.world.groundY - this.saucer.y;
             const liftedDist = this.world.groundY - currentSoleTarget.y;
@@ -1931,14 +1894,11 @@
             currentSoleTarget.triggerDistress();
             sound.playHumanDistress(fraction);
 
-            // Reached saucer hatch: abduction is finalized
             if (currentSoleTarget.y <= this.saucer.y + 16) {
               if (currentSoleTarget.hasDoNotAbductCard) {
-                // Completed abduction of protected human: Straight to Intergalactic Jail!
                 this.triggerJail(currentSoleTarget);
                 return;
               } else {
-                // Successful clear abduction!
                 this.score += 1;
                 sound.playAbductionChime();
                 this.updateHUD();
@@ -1947,13 +1907,11 @@
                 this.humans = this.humans.filter(h => h !== currentSoleTarget);
                 this.targetedHuman = null;
 
-                // Spawn new replacement human only upon successful abduction
                 this.spawnNewHuman();
               }
             }
           }
         } else {
-          // Button released: mid-air humans parachute down safely
           this.humans.forEach(h => {
             if (h.state === 'LIFTING') {
               h.state = 'FALLING';
@@ -1961,12 +1919,11 @@
           });
         }
 
-        // 3. Human updates - humans walk towards offscreen or exit via capture
+        // Human walk updates
         for (let i = this.humans.length - 1; i >= 0; i--) {
           const h = this.humans[i];
           h.update(dt);
 
-          // If walking human walked off-screen, despawn and spawn a new human from a building
           if (h.isOffscreen && h.state !== 'LIFTING') {
             registry.release(h.name);
             this.humans.splice(i, 1);
@@ -1997,7 +1954,7 @@
         } else {
           card.className = 'bg-slate-900/95 border-2 border-emerald-500 rounded-2xl px-5 py-2.5 backdrop-blur-lg flex items-center gap-4 glow-cyan';
           status.className = 'pixel-font text-xs text-emerald-400 font-bold';
-          status.textContent = '✓ CLEAR FOR ABDUCTION (50/50 CLEAR)';
+          status.textContent = '✓ CLEAR FOR ABDUCTION';
         }
       }
 
@@ -2010,17 +1967,13 @@
 
       draw() {
         this.ctx.clearRect(0, 0, this.width, this.height);
-
-        // 1. Terrain & Stars
         this.world.draw(this.ctx);
 
-        // 2. Humans
         this.humans.forEach(h => {
           const isTargeted = (h === this.targetedHuman);
           h.draw(this.ctx, isTargeted);
         });
 
-        // 3. Saucer & Beams
         this.saucer.draw(this.ctx);
       }
 
@@ -2035,7 +1988,7 @@
       }
     }
 
-    // Launch on load
+    // Launch Game
     window.onload = () => {
       window.gameInstance = new GameController();
     };
