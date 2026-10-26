@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Abduction Protocol: Straight to Intergalactic Jail!</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    body {
+      background-color: #030712;
+      overflow: hidden;
+      font-family: 'Share Tech Mono', monospace;
+    }
+    .font-arcade {
+      font-family: 'Orbitron', monospace, sans-serif;
+    }
+    .crt-overlay {
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 4px 100%;
+    }
+    @keyframes policeStrobe {
+      0%, 49% { border-color: rgba(239, 68, 68, 0.95); box-shadow: inset 0 0 130px rgba(239, 68, 68, 0.85); }
+      50%, 100% { border-color: rgba(59, 130, 246, 0.95); box-shadow: inset 0 0 130px rgba(59, 130, 246, 0.85); }
+    }
+    .police-siren-border {
+      animation: policeStrobe 0.18s infinite steps(1);
+    }
+    @keyframes jailDrop {
+      0% { transform: translateY(-115%); }
+      65% { transform: translateY(3%); }
+      82% { transform: translateY(-1.5%); }
+      100% { transform: translateY(0); }
+    }
+    .jail-bars-anim {
+      animation: jailDrop 0.42s cubic-bezier(0.18, 0.89, 0.32, 1.22) forwards;
+    }
+    .jail-bar-steel {
+      background: linear-gradient(90deg, #020617 0%, #334155 24%, #f8fafc 50%, #475569 76%, #020617 100%);
+      box-shadow: 4px 0 18px rgba(0,0,0,0.95), inset 0 0 6px rgba(255,255,255,0.45);
+    }
+    .arcade-glow-cyan {
+      text-shadow: 0 0 8px rgba(6, 182, 212, 0.9), 0 0 20px rgba(6, 182, 212, 0.6);
+    }
+    .arcade-glow-red {
+      text-shadow: 0 0 10px rgba(244, 63, 94, 0.95), 0 0 30px rgba(239, 68, 68, 0.85);
+    }
+    .arcade-glow-yellow {
+      text-shadow: 0 0 8px rgba(250, 204, 21, 0.9), 0 0 20px rgba(234, 179, 8, 0.6);
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.8); }
+    ::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 4px; }
+  </style>
+</head>
+<body class="relative w-screen h-screen flex flex-col items-center justify-center text-slate-100 select-none">
+
+  <!-- Main Game Container -->
+  <div id="gameContainer" class="relative w-full h-full overflow-hidden bg-slate-950">
+    <canvas id="gameCanvas" class="block w-full h-full cursor-crosshair"></canvas>
+
+    <!-- CRT Filter -->
+    <div class="crt-overlay absolute inset-0 z-10 pointer-events-none"></div>
+
+    <!-- Top HUD Bar -->
+    <header class="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 sm:px-6 py-2.5 bg-gradient-to-b from-slate-950/95 via-slate-950/75 to-transparent pointer-events-none">
+      
+      <!-- Scores & Telemetry -->
+      <div class="flex items-center gap-2 sm:gap-4 pointer-events-auto">
+        <!-- Live Score -->
+        <div class="bg-slate-900/90 border border-cyan-500/50 rounded-xl px-3 sm:px-4 py-1.5 backdrop-blur-md shadow-lg shadow-cyan-950/60">
+          <div class="text-[9px] sm:text-[10px] text-cyan-400 font-arcade uppercase tracking-wider">Harvested</div>
+          <div id="scoreDisplay" class="text-xl sm:text-3xl font-black font-arcade text-cyan-300 arcade-glow-cyan leading-none mt-0.5">0</div>
+        </div>
+
+        <!-- High Score & Call Sign -->
+        <div class="bg-slate-900/90 border border-amber-500/50 rounded-xl px-3 sm:px-4 py-1.5 backdrop-blur-md shadow-lg shadow-amber-950/60">
+          <div class="text-[9px] sm:text-[10px] text-amber-400 font-arcade uppercase tracking-wider">Record</div>
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <span id="highScoreDisplay" class="text-xl sm:text-3xl font-black font-arcade text-yellow-300 arcade-glow-yellow leading-none mt-0.5">0</span>
+            <span id="highScoreHolder" class="text-[10px] sm:text-xs font-arcade text-purple-200 font-bold bg-purple-900/80 px-2 py-0.5 rounded border border-purple-500/50">ZOR</span>
+          </div>
+        </div>
+
+        <!-- Altitude & Precision Beam Telemetry -->
+        <div class="hidden sm:flex items-center gap-3 bg-slate-900/90 border border-indigo-500/50 rounded-xl px-3 py-1.5 backdrop-blur-md shadow">
+          <div>
+            <div class="text-[9px] text-indigo-300 font-arcade uppercase">Altitude</div>
+            <div id="altMeterDisplay" class="text-sm sm:text-base font-black text-indigo-200 leading-tight">180m</div>
+          </div>
+          <div class="flex flex-col items-center pl-2 border-l border-slate-700/80">
+            <span id="coneFocusLabel" class="text-[9px] font-arcade text-cyan-400 font-bold tracking-wider">WIDE CONE</span>
+            <div class="w-16 sm:w-24 h-1.5 bg-slate-800 rounded-full overflow-hidden mt-0.5 border border-slate-700">
+              <div id="coneFocusBar" class="h-full bg-cyan-400 transition-all duration-75" style="width: 75%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action & Utility Buttons -->
+      <div class="flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
+        <button id="mouseFollowBtn" title="Toggle Mouse Flight" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 text-xs font-arcade font-bold transition backdrop-blur-md flex items-center gap-1.5 shadow">
+          <span>🎯</span>
+          <span class="hidden lg:inline" id="mouseFollowLabel">Mouse Aim: Off</span>
+        </button>
+
+        <button id="dossierBtn" title="Abduction Manifest" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900/90 border border-emerald-500/50 hover:border-emerald-400 text-slate-300 hover:text-emerald-300 text-xs font-arcade font-bold transition backdrop-blur-md flex items-center gap-1.5 shadow">
+          <span>📋</span>
+          <span class="hidden md:inline">Manifest</span>
+          <span id="dossierCountBadge" class="bg-emerald-600 text-[10px] text-white px-1.5 rounded-full font-mono">0</span>
+        </button>
+
+        <button id="leaderboardBtn" title="Leaderboard" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-amber-300 text-xs font-arcade font-bold transition backdrop-blur-md flex items-center gap-1.5 shadow">
+          <span>🏆</span>
+          <span class="hidden md:inline">Ranks</span>
+        </button>
+
+        <button id="audioToggleBtn" title="Toggle Audio" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 text-xs font-arcade font-bold transition backdrop-blur-md flex items-center gap-1.5 shadow">
+          <span id="audioIcon">🔊</span>
+          <span class="hidden md:inline">Audio</span>
+        </button>
+
+        <button id="helpToggleBtn" title="Controls" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 text-xs font-arcade font-bold transition backdrop-blur-md flex items-center gap-1.5 shadow">
+          <span>🎮</span>
+          <span class="hidden md:inline">Controls</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Holographic Bio-Scanner HUD -->
+    <div id="scannerHUD" class="absolute top-16 sm:top-20 left-1/2 -translate-x-1/2 z-20 pointer-events-none transition-all duration-150 opacity-0 transform -translate-y-3 scale-95 max-w-sm sm:max-w-md w-11/12">
+      <div class="bg-slate-950/95 border-2 border-cyan-400/80 rounded-2xl p-3 sm:p-4 backdrop-blur-xl shadow-[0_0_35px_rgba(6,182,212,0.45)] flex items-start gap-3 relative overflow-hidden">
+        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
+
+        <div id="targetAvatar" class="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-3xl border border-cyan-500/50 shadow-inner flex-shrink-0 mt-0.5">
+          👨‍🌾
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <span id="targetName" class="text-xs sm:text-sm font-black font-arcade text-cyan-200 truncate">FARMER JIM</span>
+            <span id="targetSpeedClass" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 flex-shrink-0 ml-1">WALKER</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-x-2 text-[10px] text-slate-400 mt-1">
+            <div class="truncate">OCCUPATION: <span id="targetRole" class="text-slate-200 font-semibold">Agriculture</span></div>
+            <div class="truncate">QUIRK: <span id="targetQuirk" class="text-slate-200 font-semibold">Tending corn</span></div>
+          </div>
+
+          <!-- Dynamic Badge: DO NOT ABDUCT vs CLEARED FOR HARVEST -->
+          <div id="targetBadge" class="mt-2 text-[10px] sm:text-[11px] font-bold font-arcade tracking-wider px-2 py-0.5 rounded inline-flex items-center gap-1.5">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Abducted Manifest Slide-Over Drawer -->
+    <aside id="dossierDrawer" class="absolute top-0 right-0 bottom-0 w-84 max-w-[85vw] bg-slate-950/95 border-l border-emerald-500/40 backdrop-blur-2xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📋</span>
+          <div>
+            <h3 class="font-arcade text-sm font-bold text-emerald-400">Specimen Manifest</h3>
+            <p class="text-[10px] text-slate-400">Town Registry & Immunity Logs</p>
+          </div>
+        </div>
+        <button id="closeDossierBtn" class="p-1 rounded-lg bg-slate-900 text-slate-400 hover:text-white border border-slate-700">✕</button>
+      </div>
+
+      <div id="dossierList" class="flex-1 overflow-y-auto p-3 space-y-2 text-xs">
+        <div class="text-center text-slate-500 py-10 text-xs">No specimens harvested yet.<br>Scan humans and beam those without cards!</div>
+      </div>
+
+      <div class="p-3 border-t border-slate-800 bg-slate-900/60">
+        <button id="closeDossierFooterBtn" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-arcade font-bold text-xs rounded-xl uppercase">Close</button>
+      </div>
+    </aside>
+
+    <!-- Desktop Controls HUD Banner -->
+    <div class="hidden md:flex absolute bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none items-center gap-2 sm:gap-3 bg-slate-900/90 border border-slate-700/80 px-4 py-2 rounded-2xl backdrop-blur-md shadow-2xl text-xs text-slate-300">
+      <span class="flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-600 text-cyan-300 font-arcade text-[10px] font-bold">W / S</kbd> Altitude (Dive low to isolate single human)</span>
+      <span class="text-slate-600">•</span>
+      <span class="flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-600 text-cyan-300 font-arcade text-[10px] font-bold">A / D</kbd> Steer</span>
+      <span class="text-slate-600">•</span>
+      <span class="flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-blue-500 text-blue-300 font-arcade text-[10px] font-bold">E / C / Right-Click</kbd> Scan Card</span>
+      <span class="text-slate-600">•</span>
+      <span class="flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-emerald-500 text-emerald-300 font-arcade text-[10px] font-bold">HOLD SPACE / Left-Click</kbd> Tractor (Release to drop)</span>
+    </div>
+
+    <!-- Mobile Virtual Controls -->
+    <div id="touchControls" class="absolute bottom-3 left-0 right-0 z-20 px-3 flex justify-between items-end pointer-events-none md:hidden">
+      <!-- Directional D-Pad -->
+      <div class="grid grid-cols-3 gap-1 pointer-events-auto bg-slate-950/85 p-1.5 rounded-2xl border border-slate-800 backdrop-blur-sm">
+        <div></div>
+        <button id="btnUp" class="w-11 h-11 bg-slate-800/90 rounded-xl active:bg-cyan-600 flex items-center justify-center font-bold text-base border border-slate-600 active:scale-95 shadow text-slate-200">▲</button>
+        <div></div>
+        <button id="btnLeft" class="w-11 h-11 bg-slate-800/90 rounded-xl active:bg-cyan-600 flex items-center justify-center font-bold text-base border border-slate-600 active:scale-95 shadow text-slate-200">◀</button>
+        <button id="btnDown" class="w-11 h-11 bg-slate-800/90 rounded-xl active:bg-cyan-600 flex items-center justify-center font-bold text-base border border-slate-600 active:scale-95 shadow text-slate-200">▼</button>
+        <button id="btnRight" class="w-11 h-11 bg-slate-800/90 rounded-xl active:bg-cyan-600 flex items-center justify-center font-bold text-base border border-slate-600 active:scale-95 shadow text-slate-200">▶</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2 pointer-events-auto">
+        <button id="btnScan" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 active:from-blue-500 border-2 border-blue-400 font-arcade text-[11px] font-bold flex flex-col items-center justify-center shadow-lg active:scale-95 text-white">
+          <span class="text-xl">🔍</span>
+          SCAN
+        </button>
+        <button id="btnBeam" class="w-18 h-18 px-3 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-600 active:from-emerald-400 border-2 border-emerald-300 font-arcade text-xs font-black flex flex-col items-center justify-center shadow-lg active:scale-95 text-white">
+          <span class="text-2xl">⚡</span>
+          BEAM
+        </button>
+      </div>
+    </div>
+
+    <!-- Title / Start Modal -->
+    <div id="startModal" class="absolute inset-0 z-30 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-cyan-500/60 max-w-lg w-full rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(6,182,212,0.3)] text-center relative overflow-hidden">
+        
+        <div class="w-20 h-20 mx-auto rounded-full bg-cyan-500/20 flex items-center justify-center text-5xl shadow-[0_0_30px_rgba(6,182,212,0.5)] mb-3 animate-bounce">
+          🛸
+        </div>
+
+        <h1 class="text-xl sm:text-2xl font-black font-arcade tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-emerald-400 mb-0.5">
+          ABDUCTION PROTOCOL:
+        </h1>
+        <h2 class="text-base sm:text-xl font-black font-arcade text-rose-500 mb-4 tracking-wider arcade-glow-red">
+          STRAIGHT TO INTERGALACTIC JAIL!
+        </h2>
+
+        <p class="text-xs sm:text-sm text-slate-300 mb-4 leading-relaxed max-w-md mx-auto">
+          Harvest townspeople like <em>Farmer Jim, Baker Fred, Florist Daisy, Blacksmith Dave</em> and more as they roam around! 
+          Always <strong>SCAN</strong> first to check their card. If you beam up anyone carrying a 
+          <span class="text-rose-400 font-bold bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-500/40">DO NOT ABDUCT</span> 
+          card, you go <strong>STRAIGHT TO INTERGALACTIC JAIL</strong>!
+        </p>
+
+        <!-- Mechanics Hints -->
+        <div class="grid grid-cols-2 gap-2 text-left text-xs mb-5">
+          <div class="bg-slate-900/90 border border-cyan-500/30 p-2.5 rounded-xl">
+            <span class="text-cyan-300 font-bold block mb-0.5">🔻 Swoop Low to Isolate</span>
+            <span class="text-slate-400 text-[11px]">Diving near the ground narrows the tractor beam into a needle, isolating single humans in crowds.</span>
+          </div>
+          <div class="bg-slate-900/90 border border-emerald-500/30 p-2.5 rounded-xl">
+            <span class="text-emerald-300 font-bold block mb-0.5">✋ Let Go to Abort</span>
+            <span class="text-slate-400 text-[11px]">Hooked someone protected? Release the beam immediately to drop them safely back to earth!</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 mb-5 flex items-center justify-between text-xs">
+          <div>
+            <div class="text-slate-400 uppercase text-[10px] font-arcade">Sector High Score</div>
+            <div id="titleRecordDisplay" class="font-arcade text-yellow-300 font-bold text-sm">ZOR - 20 PTS</div>
+          </div>
+          <button id="titleLeaderboardBtn" class="text-xs text-cyan-400 underline hover:text-cyan-300 font-arcade">Hall of Fame</button>
+        </div>
+
+        <button id="startGameBtn" class="w-full py-4 bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 hover:from-emerald-300 hover:to-blue-400 text-slate-950 font-black font-arcade text-base sm:text-lg rounded-2xl uppercase tracking-wider shadow-xl cursor-pointer active:scale-95 transition">
+          Engage Saucer
+        </button>
+      </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" class="absolute inset-0 z-45 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+      <div class="bg-slate-900 border border-amber-500/50 max-w-md w-full rounded-3xl p-6 shadow-2xl relative text-center">
+        <button id="closeLeaderboardBtn" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-xl font-bold">✕</button>
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <span class="text-2xl">🏆</span>
+          <h2 class="text-xl font-arcade font-bold text-yellow-300">Galactic Hall of Fame</h2>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">Top Abductors across Sector 001</p>
+
+        <div id="leaderboardList" class="space-y-2 mb-5 text-sm">
+          <!-- Populated by JS -->
+        </div>
+
+        <button id="resumeFromLeaderboardBtn" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-arcade font-bold text-xs uppercase tracking-wider rounded-xl transition">
+          Back
+        </button>
+      </div>
+    </div>
+
+    <!-- Help / Controls Modal -->
+    <div id="helpModal" class="absolute inset-0 z-40 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+      <div class="bg-slate-900 border border-cyan-500/40 max-w-md w-full rounded-3xl p-6 shadow-2xl relative">
+        <button id="closeHelpBtn" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-xl font-bold">✕</button>
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl">🛸</span>
+          <h2 class="text-xl font-arcade font-bold text-cyan-400">Flight Controls</h2>
+        </div>
+
+        <div class="space-y-2.5 mb-5 text-xs sm:text-sm">
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-slate-700">
+            <span class="font-bold text-cyan-300 font-arcade">W / S or Up / Down</span>
+            <span class="text-slate-300">Altitude (Drop low to isolate a single human)</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-slate-700">
+            <span class="font-bold text-cyan-300 font-arcade">A / D or Left / Right</span>
+            <span class="text-slate-300">Horizontal Saucer Movement</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-blue-400 font-arcade">
+            <span class="font-bold text-blue-400 font-arcade">E / C / Right-Click</span>
+            <span class="text-slate-300">Bio-Scan Cone (Inspect card status)</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-emerald-500">
+            <span class="font-bold text-emerald-400 font-arcade">SPACE (Hold) / Left-Click</span>
+            <span class="text-slate-300">Tractor Beam (Release to drop safely)</span>
+          </div>
+        </div>
+
+        <button id="resumeFromHelpBtn" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-arcade font-bold text-sm rounded-xl uppercase tracking-wider transition">
+          Resume Flight
+        </button>
+      </div>
+    </div>
+
+    <!-- Straight to Intergalactic Jail (GAME OVER) Screen -->
+    <div id="jailModal" class="absolute inset-0 z-50 bg-black/95 backdrop-blur-lg flex items-center justify-center p-4 hidden">
+      <!-- Animated Police Siren Perimeter -->
+      <div class="absolute inset-0 border-[12px] police-siren-border pointer-events-none"></div>
+
+      <!-- Animated Steel Jail Bars Slamming Down -->
+      <div id="jailBarsLayer" class="absolute inset-0 flex justify-around pointer-events-none z-10 opacity-35 jail-bars-anim">
+        <div class="jail-bar-steel w-4 sm:w-5 h-full"></div>
+        <div class="jail-bar-steel w-4 sm:w-5 h-full"></div>
+        <div class="jail-bar-steel w-4 sm:w-5 h-full"></div>
+        <div class="jail-bar-steel w-4 sm:w-5 h-full"></div>
+        <div class="jail-bar-steel w-4 sm:w-5 h-full"></div>
+        <div class="jail-bar-steel w-4 sm:w-5 h-full"></div>
+        <div class="jail-bar-steel w-4 sm:w-5 h-full"></div>
+      </div>
+
+      <div class="relative z-20 bg-slate-900/95 border-2 border-rose-600 max-w-lg w-full rounded-3xl p-5 sm:p-7 shadow-[0_0_80px_rgba(225,29,72,0.65)] text-center max-h-[92vh] overflow-y-auto">
+        
+        <div class="inline-block p-2.5 rounded-full bg-rose-500/20 text-4xl mb-2 border border-rose-500/50 animate-pulse">
+          🚨
+        </div>
+
+        <h2 class="text-2xl sm:text-3xl font-black font-arcade tracking-tight text-rose-500 mb-1 leading-tight arcade-glow-red">
+          STRAIGHT TO INTERGALACTIC JAIL!
+        </h2>
+        <p class="text-[10px] sm:text-[11px] uppercase font-arcade tracking-widest text-rose-300 mb-3">
+          INTERSTELLAR DIPLOMATIC TREATY VIOLATION
+        </p>
+
+        <!-- Offender Mugshot -->
+        <div class="bg-slate-950/90 border border-rose-500/40 rounded-2xl p-3 mb-3 text-left flex items-center gap-3">
+          <div id="jailOffenderAvatar" class="w-14 h-14 rounded-xl bg-slate-800 flex items-center justify-center text-3xl border-2 border-rose-500 shadow-md flex-shrink-0">
+            👨‍🌾
+          </div>
+          <div class="min-w-0">
+            <div class="text-[10px] text-rose-400 font-mono uppercase">Protected Individual Abducted</div>
+            <div id="jailOffenderName" class="font-arcade text-sm font-bold text-white truncate">Farmer Jim</div>
+            <div class="text-[10px] text-slate-400 font-mono truncate" id="jailOffenderJob">Occupation: Agriculture</div>
+            <div class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-rose-950/90 text-rose-200 border border-rose-500/60 mt-1">
+              <span>⛔</span> "DO NOT ABDUCT" CARD CONFIRMED
+            </div>
+          </div>
+        </div>
+
+        <!-- Final Scores -->
+        <div class="bg-slate-800/80 rounded-2xl p-2.5 border border-slate-700 mb-3 flex justify-around items-center">
+          <div>
+            <div class="text-[10px] text-slate-400 font-arcade uppercase">Your Score</div>
+            <div id="jailFinalScore" class="text-2xl font-black font-arcade text-cyan-300">0</div>
+          </div>
+          <div class="h-8 w-px bg-slate-700"></div>
+          <div>
+            <div class="text-[10px] text-slate-400 font-arcade uppercase">Sector Record</div>
+            <div id="jailHighScore" class="text-2xl font-black font-arcade text-yellow-300">0</div>
+          </div>
+        </div>
+
+        <!-- High Score Arcade 3-Letter Slot Selector -->
+        <div id="initialsContainer" class="hidden mb-3 bg-gradient-to-r from-amber-950/70 to-purple-950/70 border border-yellow-500/50 rounded-2xl p-3 text-center">
+          <div class="text-xs font-arcade font-bold text-yellow-300 mb-1">🎉 NEW ALL-TIME HIGH SCORE! 🎉</div>
+          <p class="text-[11px] text-slate-300 mb-2">Cycle letters with ▲ / ▼ to set your pilot callsign:</p>
+          
+          <div class="flex justify-center items-center gap-3 my-2">
+            <!-- Slot 1 -->
+            <div class="flex flex-col items-center">
+              <button class="slot-up px-2 py-0.5 bg-slate-800 text-yellow-300 font-bold rounded hover:bg-slate-700 border border-slate-600 text-xs" data-slot="0">▲</button>
+              <div id="initialSlot0" class="w-10 h-11 bg-slate-900 border-2 border-yellow-400 text-yellow-300 text-2xl font-black font-arcade flex items-center justify-center my-1 rounded-lg">A</div>
+              <button class="slot-down px-2 py-0.5 bg-slate-800 text-yellow-300 font-bold rounded hover:bg-slate-700 border border-slate-600 text-xs" data-slot="0">▼</button>
+            </div>
+
+            <!-- Slot 2 -->
+            <div class="flex flex-col items-center">
+              <button class="slot-up px-2 py-0.5 bg-slate-800 text-yellow-300 font-bold rounded hover:bg-slate-700 border border-slate-600 text-xs" data-slot="1">▲</button>
+              <div id="initialSlot1" class="w-10 h-11 bg-slate-900 border-2 border-yellow-400 text-yellow-300 text-2xl font-black font-arcade flex items-center justify-center my-1 rounded-lg">C</div>
+              <button class="slot-down px-2 py-0.5 bg-slate-800 text-yellow-300 font-bold rounded hover:bg-slate-700 border border-slate-600 text-xs" data-slot="1">▼</button>
+            </div>
+
+            <!-- Slot 3 -->
+            <div class="flex flex-col items-center">
+              <button class="slot-up px-2 py-0.5 bg-slate-800 text-yellow-300 font-bold rounded hover:bg-slate-700 border border-slate-600 text-xs" data-slot="2">▲</button>
+              <div id="initialSlot2" class="w-10 h-11 bg-slate-900 border-2 border-yellow-400 text-yellow-300 text-2xl font-black font-arcade flex items-center justify-center my-1 rounded-lg">E</div>
+              <button class="slot-down px-2 py-0.5 bg-slate-800 text-yellow-300 font-bold rounded hover:bg-slate-700 border border-slate-600 text-xs" data-slot="2">▼</button>
+            </div>
+
+            <button id="saveInitialsBtn" class="ml-2 px-4 py-3 bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-arcade font-bold rounded-xl text-xs uppercase tracking-wider transition shadow-lg">
+              Save
+            </button>
+          </div>
+        </div>
+
+        <!-- Manifest Summary in Game Over -->
+        <div class="mb-3 text-left bg-slate-950/70 border border-slate-800 rounded-2xl p-3 max-h-32 overflow-y-auto">
+          <div class="text-[10px] font-arcade uppercase text-cyan-400 mb-1.5 flex items-center justify-between">
+            <span>Harvest Manifest</span>
+            <span id="jailManifestCount" class="text-slate-400 font-mono">0 specimens</span>
+          </div>
+          <div id="jailManifestList" class="space-y-1 font-mono text-[11px]">
+            <!-- Dynamic manifest items -->
+          </div>
+        </div>
+
+        <button id="restartGameBtn" class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-400 hover:to-orange-400 text-white font-black font-arcade text-sm sm:text-base rounded-2xl uppercase tracking-wider shadow-lg active:scale-95 transition">
+          Post Bail & Retry
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================================================
+       ABDUCTION PROTOCOL: STRAIGHT TO INTERGALACTIC JAIL!
+       Single-File Retro Web Audio & 2D Canvas Engine
+       ========================================================================== */
+
+    // --- Web Audio Synthesizer ---
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.humOsc = null;
+        this.humGain = null;
+        this.beamOsc = null;
+        this.beamGain = null;
+      }
+
+      init() {
+        if (this.ctx) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+
+        // 1. Saucer Thruster Hum
+        this.humOsc = this.ctx.createOscillator();
+        this.humGain = this.ctx.createGain();
+        this.humOsc.type = 'sawtooth';
+        this.humOsc.frequency.setValueAtTime(68, this.ctx.currentTime);
+
+        const humFilter = this.ctx.createBiquadFilter();
+        humFilter.type = 'lowpass';
+        humFilter.frequency.setValueAtTime(140, this.ctx.currentTime);
+
+        this.humGain.gain.setValueAtTime(0.015, this.ctx.currentTime);
+        this.humOsc.connect(humFilter);
+        humFilter.connect(this.humGain);
+        this.humGain.connect(this.ctx.destination);
+        this.humOsc.start();
+
+        // 2. Tractor Beam Drone
+        this.beamOsc = this.ctx.createOscillator();
+        this.beamGain = this.ctx.createGain();
+        this.beamOsc.type = 'triangle';
+        this.beamOsc.frequency.setValueAtTime(160, this.ctx.currentTime);
+
+        this.beamGain.gain.setValueAtTime(0, this.ctx.currentTime);
+        this.beamOsc.connect(this.beamGain);
+        this.beamGain.connect(this.ctx.destination);
+        this.beamOsc.start();
+      }
+
+      updateHoverPitch(speed) {
+        if (!this.ctx || this.muted) return;
+        const targetFreq = 65 + Math.min(speed * 12, 75);
+        this.humOsc.frequency.setTargetAtTime(targetFreq, this.ctx.currentTime, 0.08);
+      }
+
+      setTractorBeamActive(active) {
+        if (!this.ctx || this.muted) return;
+        const targetGain = active ? 0.09 : 0;
+        this.beamGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.05);
+      }
+
+      playScan() {
+        if (!this.ctx || this.muted) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(540, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1550, this.ctx.currentTime + 0.12);
+
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.13);
+      }
+
+      playAbductionSuccess() {
+        if (!this.ctx || this.muted) return;
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const t = this.ctx.currentTime + idx * 0.06;
+          osc.frequency.setValueAtTime(freq, t);
+
+          gain.gain.setValueAtTime(0.12, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.2);
+        });
+      }
+
+      playDropWhoosh() {
+        if (!this.ctx || this.muted) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.16);
+      }
+
+      playJailSirens() {
+        if (!this.ctx || this.muted) return;
+        const start = this.ctx.currentTime;
+        
+        // Metallic bars slam clang
+        const clangOsc = this.ctx.createOscillator();
+        const clangGain = this.ctx.createGain();
+        clangOsc.type = 'square';
+        clangOsc.frequency.setValueAtTime(110, start);
+        clangGain.gain.setValueAtTime(0.35, start);
+        clangGain.gain.exponentialRampToValueAtTime(0.001, start + 0.45);
+        clangOsc.connect(clangGain);
+        clangGain.connect(this.ctx.destination);
+        clangOsc.start(start);
+        clangOsc.stop(start + 0.46);
+
+        // Interstellar emergency police sirens
+        for (let i = 0; i < 7; i++) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          const t = start + i * 0.22;
+          const freq = (i % 2 === 0) ? 960 : 640;
+          osc.frequency.setValueAtTime(freq, t);
+
+          gain.gain.setValueAtTime(0.16, t);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.22);
+        }
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        if (this.humGain) {
+          this.humGain.gain.setValueAtTime(this.muted ? 0 : 0.015, this.ctx ? this.ctx.currentTime : 0);
+        }
+        if (this.beamGain && this.muted) {
+          this.beamGain.gain.setValueAtTime(0, this.ctx ? this.ctx.currentTime : 0);
+        }
+        return this.muted;
+      }
+    }
+
+    const sound = new SoundFX();
+
+    // --- Rich Pool of Occupation-Style Names (Farmer Jim, Baker Fred, etc.) ---
+    const OCCUPATION_PERSONS = [
+      { name: "Farmer Jim", job: "Agriculture", quirk: "Chewing a piece of sweet straw", avatar: "👨‍🌾" },
+      { name: "Baker Fred", job: "Artisan Bakery", quirk: "Dusting flour off his apron", avatar: "🥖" },
+      { name: "Blacksmith Dave", job: "Forge Master", quirk: "Flexing hammer-calloused arms", avatar: "⚒️" },
+      { name: "Florist Daisy", job: "Botanist", quirk: "Pruning prized neon orchids", avatar: "💐" },
+      { name: "Fisherman Joe", job: "Angler", quirk: "Insisting he caught one this big", avatar: "🎣" },
+      { name: "Chef Luigi", job: "Trattoria Owner", quirk: "Kissing fingers like chef's kiss", avatar: "🍝" },
+      { name: "Mayor Higgins", job: "Civic Leader", quirk: "Practicing ribbon-cutting speech", avatar: "🎖️" },
+      { name: "Sailor Pete", job: "Harbor Pilot", quirk: "Tying neat nautical bowlines", avatar: "⚓" },
+      { name: "Miner Sam", job: "Excavator", quirk: "Checking glowing pickaxe head", avatar: "⛏️" },
+      { name: "Butcher Bill", job: "Meat Merchant", quirk: "Honing meat cleaver blade", avatar: "🥩" },
+      { name: "Gardener Tim", job: "Horticulture", quirk: "Watering prize-winning petunias", avatar: "🌱" },
+      { name: "Tailor Bob", job: "Haberdasher", quirk: "Measuring lapels with tape", avatar: "🧵" },
+      { name: "Carpenter Dan", job: "Joiner", quirk: "Sighting down a wooden plank", avatar: "🪚" },
+      { name: "Grocer Hank", job: "Produce Market", quirk: "Polishing shiny red apples", avatar: "🍎" },
+      { name: "Coach Mike", job: "Athletic Director", quirk: "Blowing whistle rhythmically", avatar: "🏃" },
+      { name: "Pilot Ted", job: "Bush Aviator", quirk: "Looking at cloud formations", avatar: "✈️" },
+      { name: "Doctor Watson", job: "General Physician", quirk: "Carrying leather medical kit", avatar: "🩺" },
+      { name: "Sheriff Cooper", job: "Law Enforcement", quirk: "Adjusting shiny gold badge", avatar: "🤠" },
+      { name: "Barista Sam", job: "Coffee Craftsman", quirk: "Steaming almond milk foam", avatar: "☕" },
+      { name: "Potter Molly", job: "Ceramics", quirk: "Hands covered in wet terracotta", avatar: "🏺" },
+      { name: "Mechanic Gus", job: "Wrench Monkey", quirk: "Searching for 10mm socket", avatar: "🔧" },
+      { name: "Librarian Clara", job: "Archivist", quirk: "Shushing noisy earthlings", avatar: "📚" },
+      { name: "Beekeeper Buzz", job: "Apiarist", quirk: "Humming sweet honey songs", avatar: "🐝" },
+      { name: "Painter Claude", job: "Landscape Artist", quirk: "Mixing cobalt blue paints", avatar: "🎨" },
+      { name: "Astronomer Leo", job: "Stargazer", quirk: "Pointing telescope at your saucer", avatar: "🔭" },
+      { name: "Postman Pat", job: "Mail Delivery", quirk: "Checking addresses in mailbag", avatar: "📬" },
+      { name: "Ranger Rick", job: "Forest Protector", quirk: "Tracking deer footprints", avatar: "🌲" },
+      { name: "Cobbler Hans", job: "Shoe Artisan", quirk: "Tapping brass heel tacks", avatar: "👞" }
+    ];
+
+    const HAT_TYPES = ['none', 'none', 'cowboy', 'tophat', 'beanie', 'cap', 'fedora'];
+    const HAIR_STYLES = ['curly', 'straight', 'buzz', 'ponytail', 'spiky', 'bald', 'afro'];
+    const SHIRT_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#e2e8f0', '#14b8a6', '#f97316'];
+    const PANTS_COLORS = ['#1e293b', '#334155', '#475569', '#1e3a8a', '#3f2c22', '#292524'];
+    const SKIN_TONES = ['#fed7aa', '#fcd34d', '#fbcfe8', '#d97706', '#854d0e', '#593414', '#e0ac69'];
+
+    // --- Particle FX ---
+    class Particle {
+      constructor(x, y, vx, vy, color, size, life) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.color = color;
+        this.size = size;
+        this.life = life;
+        this.maxLife = life;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life--;
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // --- Roaming Humans with Varied Speeds & Visual Differentiation ---
+    class Human {
+      constructor(worldWidth, groundY, index, totalHumans, assignedPerson) {
+        this.worldWidth = worldWidth;
+        this.groundY = groundY;
+        this.reset(index, totalHumans, assignedPerson);
+      }
+
+      reset(index = 0, totalHumans = 18, assignedPerson = null) {
+        const segment = (this.worldWidth - 140) / Math.max(1, totalHumans);
+        this.x = 70 + index * segment + (Math.random() * (segment * 0.4) - segment * 0.2);
+        this.y = this.groundY;
+        this.height = 32 + Math.floor(Math.random() * 10);
+        this.width = 16;
+
+        // Distinct speed profiles: jogger, walker, slow stroller
+        const speedRoll = Math.random();
+        if (speedRoll < 0.28) {
+          this.speedClass = "JOGGER";
+          this.baseSpeed = 1.1 + Math.random() * 0.55;
+        } else if (speedRoll < 0.72) {
+          this.speedClass = "WALKER";
+          this.baseSpeed = 0.55 + Math.random() * 0.35;
+        } else {
+          this.speedClass = "STROLLER";
+          this.baseSpeed = 0.25 + Math.random() * 0.2;
+        }
+
+        this.vx = (Math.random() > 0.5 ? 1 : -1) * this.baseSpeed;
+        this.pauseTimer = 0;
+        this.wanderTimer = Math.floor(Math.random() * 180);
+
+        // Assigned person profile
+        const person = assignedPerson || OCCUPATION_PERSONS[0];
+        this.name = person.name;
+        this.occupation = person.job;
+        this.mood = person.quirk;
+        this.avatar = person.avatar;
+
+        // High visual differentiation
+        this.hat = HAT_TYPES[Math.floor(Math.random() * HAT_TYPES.length)];
+        this.hair = HAIR_STYLES[Math.floor(Math.random() * HAIR_STYLES.length)];
+        this.hairColor = ['#171717', '#78350f', '#ca8a04', '#e2e8f0', '#ea580c', '#52525b'][Math.floor(Math.random() * 6)];
+        this.shirt = SHIRT_COLORS[Math.floor(Math.random() * SHIRT_COLORS.length)];
+        this.pants = PANTS_COLORS[Math.floor(Math.random() * PANTS_COLORS.length)];
+        this.skin = SKIN_TONES[Math.floor(Math.random() * SKIN_TONES.length)];
+        this.hasGlasses = Math.random() < 0.35;
+        this.hasHeadphones = Math.random() < 0.25;
+
+        // ~35% chance to carry DO NOT ABDUCT immunity card
+        this.hasCard = Math.random() < 0.35;
+
+        this.isBeaming = false;
+        this.isInspected = false;
+        this.abducted = false;
+        this.walkCycle = Math.random() * 10;
+        this.vy = 0;
+      }
+
+      update(allHumans, particles) {
+        if (this.abducted) return;
+
+        // In tractor beam: suspended and ascending
+        if (this.isBeaming) {
+          this.walkCycle += 0.08;
+          return;
+        }
+
+        // Release physics: fall back down under gravity when beam is released
+        if (this.y < this.groundY) {
+          this.vy += 0.45;
+          this.y += this.vy;
+          if (this.y >= this.groundY) {
+            this.y = this.groundY;
+            this.vy = 0;
+            sound.playDropWhoosh();
+
+            // Landing dust puff particles
+            if (particles) {
+              for (let i = 0; i < 6; i++) {
+                particles.push(new Particle(
+                  this.x + (Math.random() * 14 - 7),
+                  this.groundY,
+                  (Math.random() - 0.5) * 2,
+                  -Math.random() * 1.5,
+                  'rgba(148, 163, 184, 0.7)',
+                  Math.random() * 2.5 + 1,
+                  18
+                ));
+              }
+            }
+          }
+          return;
+        }
+
+        // Flocking Separation steering: ensures humans do not stack or overlap
+        const personalSpace = 42;
+        let separationForce = 0;
+
+        if (allHumans) {
+          for (let other of allHumans) {
+            if (other === this || other.abducted || other.isBeaming) continue;
+            const diffX = this.x - other.x;
+            const dist = Math.abs(diffX);
+
+            if (dist < personalSpace && dist > 0.001) {
+              const push = (personalSpace - dist) / personalSpace;
+              separationForce += (diffX > 0 ? 1 : -1) * push * 0.75;
+            }
+          }
+        }
+
+        // Pauses to look around
+        if (this.pauseTimer > 0) {
+          this.pauseTimer--;
+          this.x += separationForce;
+          return;
+        }
+
+        // Wander & Direction timer
+        this.wanderTimer--;
+        if (this.wanderTimer <= 0) {
+          this.wanderTimer = 140 + Math.floor(Math.random() * 220);
+          if (Math.random() < 0.2) {
+            this.pauseTimer = 35 + Math.floor(Math.random() * 50); // Pause momentarily
+          } else if (Math.random() < 0.45) {
+            this.vx = (Math.random() > 0.5 ? 1 : -1) * this.baseSpeed;
+          }
+        }
+
+        this.x += this.vx + separationForce;
+        this.walkCycle += (Math.abs(this.vx) + Math.abs(separationForce)) * 0.22;
+
+        // World boundaries
+        if (this.x < 45) {
+          this.x = 45;
+          this.vx = Math.abs(this.vx);
+        } else if (this.x > this.worldWidth - 45) {
+          this.x = this.worldWidth - 45;
+          this.vx = -Math.abs(this.vx);
+        }
+      }
+
+      draw(ctx, cameraX) {
+        if (this.abducted) return;
+
+        const screenX = this.x - cameraX;
+        const screenY = this.y;
+
+        if (screenX < -70 || screenX > ctx.canvas.width + 70) return;
+
+        ctx.save();
+        ctx.translate(screenX, screenY);
+
+        // Ground shadow
+        const distFromGround = this.groundY - this.y;
+        const shadowScale = Math.max(0.15, 1 - distFromGround / 260);
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(0, distFromGround, 11 * shadowScale, 3.5 * shadowScale, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        const facing = this.vx >= 0 ? 1 : -1;
+        ctx.scale(facing, 1);
+
+        const legSwing = Math.sin(this.walkCycle) * (this.speedClass === "JOGGER" ? 8 : 5.5);
+
+        // Legs
+        ctx.strokeStyle = this.pants;
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(-3, -12);
+        ctx.lineTo(-3 + legSwing, 0);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(3, -12);
+        ctx.lineTo(3 - legSwing, 0);
+        ctx.stroke();
+
+        // Torso / Shirt
+        ctx.fillStyle = this.shirt;
+        ctx.beginPath();
+        ctx.roundRect(-7, -26, 14, 15, 3);
+        ctx.fill();
+
+        // Arms
+        ctx.strokeStyle = this.shirt;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(-5, -23);
+        ctx.lineTo(-6 - legSwing * 0.7, -13);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(5, -23);
+        ctx.lineTo(6 + legSwing * 0.7, -13);
+        ctx.stroke();
+
+        // Head
+        ctx.fillStyle = this.skin;
+        ctx.beginPath();
+        ctx.arc(0, -32, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hair Styles
+        if (this.hat === 'none') {
+          ctx.fillStyle = this.hairColor;
+          if (this.hair === 'curly') {
+            ctx.beginPath();
+            ctx.arc(-3, -37, 4, 0, Math.PI * 2);
+            ctx.arc(2, -37, 4, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (this.hair === 'afro') {
+            ctx.beginPath();
+            ctx.arc(0, -35, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Redraw face skin over afro base
+            ctx.fillStyle = this.skin;
+            ctx.beginPath();
+            ctx.arc(0, -32, 6.5, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (this.hair === 'spiky') {
+            ctx.beginPath();
+            ctx.moveTo(-6, -35);
+            ctx.lineTo(-3, -41);
+            ctx.lineTo(0, -35);
+            ctx.lineTo(3, -41);
+            ctx.lineTo(6, -35);
+            ctx.closePath();
+            ctx.fill();
+          } else if (this.hair === 'ponytail') {
+            ctx.beginPath();
+            ctx.arc(0, -35, 7, Math.PI, 0);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(-7, -33, 3, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (this.hair === 'bald') {
+            // Bald shine
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.beginPath();
+            ctx.arc(-2, -36, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.arc(0, -35, 7, Math.PI, 0);
+            ctx.fill();
+          }
+        }
+
+        // Eye
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(2.5, -33, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glasses accessory
+        if (this.hasGlasses) {
+          ctx.strokeStyle = '#0284c7';
+          ctx.lineWidth = 1.2;
+          ctx.strokeRect(1, -34.5, 4.5, 3);
+          ctx.beginPath();
+          ctx.moveTo(1, -33);
+          ctx.lineTo(-3, -33);
+          ctx.stroke();
+        }
+
+        // Headphones accessory
+        if (this.hasHeadphones) {
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, -35, 8.5, Math.PI, 0);
+          ctx.stroke();
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(-2, -34, 3, 4);
+        }
+
+        // Hats
+        if (this.hat === 'cowboy') {
+          ctx.fillStyle = '#b45309';
+          ctx.beginPath();
+          ctx.ellipse(0, -36, 12, 3, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillRect(-4, -43, 8, 7);
+        } else if (this.hat === 'tophat') {
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(-8, -37, 16, 2.5);
+          ctx.fillRect(-5, -46, 10, 9);
+          ctx.fillStyle = '#e11d48';
+          ctx.fillRect(-5, -39, 10, 2);
+        } else if (this.hat === 'beanie') {
+          ctx.fillStyle = '#f43f5e';
+          ctx.beginPath();
+          ctx.arc(0, -35, 7.5, Math.PI, 0);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(0, -42, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.hat === 'cap') {
+          ctx.fillStyle = '#0284c7';
+          ctx.beginPath();
+          ctx.arc(0, -35, 7, Math.PI, 0);
+          ctx.fill();
+          ctx.fillRect(0, -36, 8, 2.5);
+        } else if (this.hat === 'fedora') {
+          ctx.fillStyle = '#57534e';
+          ctx.fillRect(-9, -36, 18, 2.5);
+          ctx.fillRect(-5, -43, 10, 7);
+        }
+
+        // Overhead Name Tag
+        ctx.save();
+        ctx.scale(facing, 1);
+        ctx.font = 'bold 9px "Orbitron", sans-serif';
+        ctx.textAlign = 'center';
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.beginPath();
+        ctx.roundRect(-48, -53, 96, 13, 3);
+        ctx.fill();
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText(`• ${this.name}`, 0, -43);
+
+        // Overhead Inspection Banner on Scan
+        if (this.isInspected) {
+          if (this.hasCard) {
+            ctx.fillStyle = 'rgba(225, 29, 72, 0.95)';
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(-72, -72, 144, 16, 4);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('⛔ DO NOT ABDUCT', 0, -60);
+          } else {
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.95)';
+            ctx.strokeStyle = '#34d399';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(-66, -72, 132, 16, 4);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('✔ CLEAR TO ABDUCT', 0, -60);
+          }
+        }
+        ctx.restore();
+
+        ctx.restore();
+      }
+    }
+
+    // --- Flying Saucer Player with Altitude Dynamic Beam Ray Isolation ---
+    class Saucer {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = 0;
+
+        this.minAltitudeY = 85;
+        this.tilt = 0;
+        this.rimRotation = 0;
+        this.beaming = false;
+        this.scanning = false;
+      }
+
+      update(input, worldWidth, groundY, mouseAim, mousePos, cameraX) {
+        const accelX = 0.58;
+        const accelY = 0.46;
+        const friction = 0.91;
+
+        if (mouseAim && mousePos) {
+          // Mouse Follow Flight Mode
+          const targetWorldX = mousePos.x + cameraX;
+          const targetWorldY = mousePos.y;
+          const dx = targetWorldX - this.x;
+          const dy = targetWorldY - this.y;
+
+          this.vx += Math.sign(dx) * Math.min(Math.abs(dx) * 0.05, 0.7);
+          this.vy += Math.sign(dy) * Math.min(Math.abs(dy) * 0.05, 0.6);
+        } else {
+          // Standard WASD / Arrows
+          if (input.left) this.vx -= accelX;
+          if (input.right) this.vx += accelX;
+          if (input.up) this.vy -= accelY;
+          if (input.down) this.vy += accelY;
+        }
+
+        this.vx *= friction;
+        this.vy *= friction;
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+        this.tilt = this.vx * 0.04;
+
+        // Altitude bounds: swooping close to ground allows needle-thin precision targeting
+        this.x = Math.max(45, Math.min(worldWidth - 45, this.x));
+        const maxAltitude = groundY - 45; 
+        this.y = Math.max(this.minAltitudeY, Math.min(maxAltitude, this.y));
+
+        this.rimRotation += 0.08;
+        sound.updateHoverPitch(Math.hypot(this.vx, this.vy));
+      }
+
+      draw(ctx, cameraX) {
+        const screenX = this.x - cameraX;
+        const screenY = this.y;
+
+        ctx.save();
+        ctx.translate(screenX, screenY);
+        ctx.rotate(this.tilt);
+
+        // Plasma Thruster Glow
+        const thrusterGrad = ctx.createRadialGradient(0, 8, 2, 0, 16, 26);
+        thrusterGrad.addColorStop(0, 'rgba(34, 211, 238, 0.85)');
+        thrusterGrad.addColorStop(1, 'rgba(6, 182, 212, 0)');
+        ctx.fillStyle = thrusterGrad;
+        ctx.beginPath();
+        ctx.ellipse(0, 10, 22, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Cockpit Glass Dome
+        const domeGrad = ctx.createLinearGradient(0, -22, 0, -4);
+        domeGrad.addColorStop(0, '#67e8f9');
+        domeGrad.addColorStop(0.5, '#0284c7');
+        domeGrad.addColorStop(1, '#082f49');
+        ctx.fillStyle = domeGrad;
+        ctx.beginPath();
+        ctx.ellipse(0, -6, 18, 16, 0, Math.PI, 0);
+        ctx.fill();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Alien Pilot Head
+        ctx.fillStyle = '#4ade80';
+        ctx.beginPath();
+        ctx.arc(0, -11, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#052e16';
+        ctx.beginPath();
+        ctx.ellipse(-1.8, -11.5, 1.2, 1.8, -0.2, 0, Math.PI * 2);
+        ctx.ellipse(1.8, -11.5, 1.2, 1.8, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Metallic Saucer Hull Disc
+        const bodyGrad = ctx.createLinearGradient(0, -6, 0, 12);
+        bodyGrad.addColorStop(0, '#94a3b8');
+        bodyGrad.addColorStop(0.35, '#cbd5e1');
+        bodyGrad.addColorStop(0.7, '#475569');
+        bodyGrad.addColorStop(1, '#1e293b');
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 44, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#06b6d4';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Animated Outer Rim Lights
+        const lightsCount = 8;
+        for (let i = 0; i < lightsCount; i++) {
+          const angle = (i / lightsCount) * Math.PI * 2 + this.rimRotation;
+          const lx = Math.cos(angle) * 38;
+          const ly = Math.sin(angle) * 8 + 1;
+          const intensity = (Math.sin(angle + Date.now() * 0.006) + 1) / 2;
+
+          ctx.fillStyle = (i % 2 === 0) 
+            ? `rgba(56, 189, 248, ${0.4 + intensity * 0.6})` 
+            : `rgba(244, 63, 94, ${0.4 + intensity * 0.6})`;
+
+          ctx.beginPath();
+          ctx.arc(lx, ly, 2.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Tractor Beam Vent
+        ctx.fillStyle = this.beaming ? '#10b981' : (this.scanning ? '#3b82f6' : '#0284c7');
+        ctx.beginPath();
+        ctx.ellipse(0, 6, 12, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // Dynamic Altitude Cone Sizing: High = Wide cone; Close to ground = needle-sharp precision ray
+      getBeamCone(groundY) {
+        const distanceToGround = groundY - this.y;
+        const beamRadiusAtGround = Math.max(16, distanceToGround * 0.31);
+
+        return {
+          topX: this.x,
+          topY: this.y + 6,
+          topRadius: 7,
+          bottomY: groundY,
+          bottomRadius: beamRadiusAtGround,
+          altitude: distanceToGround
+        };
+      }
+    }
+
+    // --- Main Game Engine ---
+    class Game {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.worldWidth = 3200;
+        this.groundY = 520;
+        this.cameraX = 0;
+
+        this.score = 0;
+        this.highScore = 20;
+        this.highScoreHolder = 'ZOR';
+        this.leaderboard = [
+          { name: 'ZOR', score: 20 },
+          { name: 'XUR', score: 15 },
+          { name: 'NEO', score: 11 },
+          { name: 'ACE', score: 8 },
+          { name: 'LUK', score: 5 }
+        ];
+
+        this.abductedDossier = [];
+
+        this.isRunning = false;
+        this.isGameOver = false;
+
+        this.saucer = new Saucer(600, 240);
+        this.humans = [];
+        this.particles = [];
+        this.stars = [];
+        this.scenery = [];
+        this.cows = [];
+
+        // Mouse follow mode
+        this.mouseAim = false;
+        this.mousePos = null;
+
+        // 3-Letter Slot Selector values for high score
+        this.slotLetters = ['A', 'C', 'E'];
+
+        this.input = {
+          left: false,
+          right: false,
+          up: false,
+          down: false,
+          beam: false,
+          scan: false
+        };
+
+        this.loadSavedData();
+        this.initDOM();
+        this.initWorld();
+        this.setupEvents();
+        this.resize();
+
+        requestAnimationFrame((t) => this.loop(t));
+      }
+
+      // STRICT RULE: Track all active human names in a Set so NO two humans ever share a name on screen or respawn
+      getUniquePerson(excludeHuman = null) {
+        const activeNames = new Set(
+          this.humans
+            .filter(h => h !== excludeHuman && !h.abducted)
+            .map(h => h.name)
+        );
+
+        const available = OCCUPATION_PERSONS.filter(p => !activeNames.has(p.name));
+        if (available.length > 0) {
+          return available[Math.floor(Math.random() * available.length)];
+        }
+        return OCCUPATION_PERSONS[Math.floor(Math.random() * OCCUPATION_PERSONS.length)];
+      }
+
+      loadSavedData() {
+        try {
+          const s = localStorage.getItem('ufo_high_score');
+          const h = localStorage.getItem('ufo_high_holder');
+          const board = localStorage.getItem('ufo_leaderboard');
+          if (s !== null) this.highScore = parseInt(s, 10) || 0;
+          if (h) this.highScoreHolder = h.slice(0, 3).toUpperCase();
+          if (board) {
+            this.leaderboard = JSON.parse(board);
+          }
+        } catch (e) {
+          this.highScore = 20;
+          this.highScoreHolder = 'ZOR';
+        }
+        this.updateScoreHUD();
+      }
+
+      saveScoreRecord(score, initials) {
+        const cleanName = (initials || 'ACE').slice(0, 3).toUpperCase();
+        this.leaderboard.push({ name: cleanName, score: score });
+        this.leaderboard.sort((a, b) => b.score - a.score);
+        this.leaderboard = this.leaderboard.slice(0, 5);
+
+        this.highScore = this.leaderboard[0].score;
+        this.highScoreHolder = this.leaderboard[0].name;
+
+        try {
+          localStorage.setItem('ufo_high_score', this.highScore.toString());
+          localStorage.setItem('ufo_high_holder', this.highScoreHolder);
+          localStorage.setItem('ufo_leaderboard', JSON.stringify(this.leaderboard));
+        } catch (e) {}
+
+        this.updateScoreHUD();
+        this.populateLeaderboard();
+      }
+
+      populateLeaderboard() {
+        const list = document.getElementById('leaderboardList');
+        if (!list) return;
+        list.innerHTML = this.leaderboard.map((item, idx) => `
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-slate-700/80 font-arcade">
+            <div class="flex items-center gap-2">
+              <span class="w-5 text-yellow-400 font-bold">${idx + 1}.</span>
+              <span class="text-cyan-300 font-bold">${item.name}</span>
+            </div>
+            <span class="text-yellow-300 font-bold">${item.score} PTS</span>
+          </div>
+        `).join('');
+      }
+
+      updateScoreHUD() {
+        document.getElementById('scoreDisplay').innerText = this.score;
+        document.getElementById('highScoreDisplay').innerText = this.highScore;
+        document.getElementById('highScoreHolder').innerText = this.highScoreHolder;
+        const titleRecord = document.getElementById('titleRecordDisplay');
+        if (titleRecord) {
+          titleRecord.innerText = `${this.highScoreHolder} - ${this.highScore} PTS`;
+        }
+      }
+
+      initDOM() {
+        this.scannerHUD = document.getElementById('scannerHUD');
+        this.targetName = document.getElementById('targetName');
+        this.targetRole = document.getElementById('targetRole');
+        this.targetQuirk = document.getElementById('targetQuirk');
+        this.targetSpeedClass = document.getElementById('targetSpeedClass');
+        this.targetBadge = document.getElementById('targetBadge');
+        this.targetAvatar = document.getElementById('targetAvatar');
+
+        this.jailModal = document.getElementById('jailModal');
+        this.jailOffenderName = document.getElementById('jailOffenderName');
+        this.jailOffenderJob = document.getElementById('jailOffenderJob');
+        this.jailOffenderAvatar = document.getElementById('jailOffenderAvatar');
+        this.jailFinalScore = document.getElementById('jailFinalScore');
+        this.jailHighScore = document.getElementById('jailHighScore');
+        this.jailManifestList = document.getElementById('jailManifestList');
+        this.jailManifestCount = document.getElementById('jailManifestCount');
+        this.initialsContainer = document.getElementById('initialsContainer');
+
+        this.startModal = document.getElementById('startModal');
+        this.helpModal = document.getElementById('helpModal');
+        this.leaderboardModal = document.getElementById('leaderboardModal');
+        this.dossierDrawer = document.getElementById('dossierDrawer');
+        this.dossierList = document.getElementById('dossierList');
+        this.dossierCountBadge = document.getElementById('dossierCountBadge');
+
+        this.populateLeaderboard();
+      }
+
+      initWorld() {
+        // Night sky stars
+        this.stars = [];
+        for (let i = 0; i < 220; i++) {
+          this.stars.push({
+            x: Math.random() * this.worldWidth,
+            y: Math.random() * 400,
+            radius: Math.random() * 1.6 + 0.4,
+            alpha: Math.random() * 0.8 + 0.2,
+            twinkleSpeed: 0.02 + Math.random() * 0.04
+          });
+        }
+
+        // Landscape elements (Red Barns, Houses, Trees, Fence Posts, Street Lamps)
+        this.scenery = [];
+        const sceneryCount = 38;
+        for (let i = 0; i < sceneryCount; i++) {
+          const r = Math.random();
+          let type = 'tree';
+          if (r < 0.25) type = 'barn';
+          else if (r < 0.5) type = 'house';
+          else if (r < 0.75) type = 'lamp';
+          
+          this.scenery.push({
+            type: type,
+            x: 60 + i * (this.worldWidth / sceneryCount) + (Math.random() * 40 - 20),
+            y: this.groundY,
+            width: type === 'barn' ? 84 : (type === 'house' ? 70 : (type === 'tree' ? 40 : 12)),
+            height: type === 'barn' ? 68 : (type === 'house' ? 60 : (type === 'tree' ? 75 : 85)),
+            color: type === 'barn' ? '#991b1b' : (type === 'house' ? '#1e293b' : '#064e3b'),
+            roofColor: type === 'barn' ? '#7f1d1d' : '#0f172a',
+            lit: Math.random() > 0.35
+          });
+        }
+
+        // Pastoral fence posts
+        for (let f = 100; f < this.worldWidth - 100; f += 70) {
+          if (Math.random() < 0.45) {
+            this.scenery.push({
+              type: 'fence',
+              x: f,
+              y: this.groundY,
+              width: 6,
+              height: 22
+            });
+          }
+        }
+
+        // Atmospheric cows grazing in meadow
+        this.cows = [
+          { x: 340, y: this.groundY, facing: 1 },
+          { x: 1250, y: this.groundY, facing: -1 },
+          { x: 2180, y: this.groundY, facing: 1 }
+        ];
+
+        // Spawn humans with varied speeds and occupation-style names
+        this.humans = [];
+        const humanCount = 18;
+        const shuffledPool = [...OCCUPATION_PERSONS].sort(() => 0.5 - Math.random());
+        for (let i = 0; i < humanCount; i++) {
+          const person = shuffledPool[i % shuffledPool.length];
+          this.humans.push(new Human(this.worldWidth, this.groundY, i, humanCount, person));
+        }
+      }
+
+      start() {
+        sound.init();
+        this.score = 0;
+        this.abductedDossier = [];
+        this.updateDossierUI();
+        this.isGameOver = false;
+        this.isRunning = true;
+        this.updateScoreHUD();
+
+        this.saucer.x = 600;
+        this.saucer.y = 240;
+        this.saucer.vx = 0;
+        this.saucer.vy = 0;
+
+        const count = this.humans.length;
+        const shuffledPool = [...OCCUPATION_PERSONS].sort(() => 0.5 - Math.random());
+        this.humans.forEach((h, idx) => {
+          h.reset(idx, count, shuffledPool[idx % shuffledPool.length]);
+        });
+
+        this.startModal.classList.add('hidden');
+        this.jailModal.classList.add('hidden');
+        this.helpModal.classList.add('hidden');
+        this.leaderboardModal.classList.add('hidden');
+        this.dossierDrawer.classList.add('translate-x-full');
+      }
+
+      recordAbduction(human, isFatalViolation = false) {
+        this.abductedDossier.unshift({
+          name: human.name,
+          role: human.occupation,
+          avatar: human.avatar || '👨‍🌾',
+          hasCard: human.hasCard,
+          isFatal: isFatalViolation,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        });
+        this.updateDossierUI();
+      }
+
+      updateDossierUI() {
+        this.dossierCountBadge.innerText = this.abductedDossier.length;
+        if (this.abductedDossier.length === 0) {
+          this.dossierList.innerHTML = `<div class="text-center text-slate-500 py-10 text-xs">No specimens harvested yet.<br>Scan humans and beam those without cards!</div>`;
+          return;
+        }
+
+        this.dossierList.innerHTML = this.abductedDossier.map(entry => {
+          if (entry.isFatal) {
+            return `
+              <div class="bg-rose-950/80 border border-rose-500/70 rounded-xl p-2.5 flex items-center gap-2.5 shadow-md">
+                <span class="text-2xl">${entry.avatar}</span>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center justify-between">
+                    <span class="font-arcade text-rose-300 font-bold truncate">${entry.name}</span>
+                    <span class="text-[9px] text-rose-400 font-bold">SENTENCED!</span>
+                  </div>
+                  <div class="text-[10px] text-slate-300 truncate">${entry.role}</div>
+                  <div class="text-[9px] text-rose-400 font-bold">⛔ "DO NOT ABDUCT" CARD VIOLATION</div>
+                </div>
+              </div>
+            `;
+          }
+          return `
+            <div class="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-2.5 flex items-center gap-2.5 shadow-md">
+              <span class="text-2xl">${entry.avatar}</span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-arcade text-emerald-300 font-bold truncate">${entry.name}</span>
+                  <span class="text-[9px] text-emerald-400 font-bold">+1 POINT</span>
+                </div>
+                <div class="text-[10px] text-slate-300 truncate">${entry.role}</div>
+                <div class="text-[9px] text-slate-400">Captured: ${entry.timestamp}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      setupEvents() {
+        window.addEventListener('resize', () => this.resize());
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Mouse tracking for coordinates & optional follow flight
+        this.canvas.addEventListener('mousemove', (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          this.mousePos = {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+          };
+        });
+
+        // Mouse Button Controls: Left Click = Tractor Beam, Right Click = Scan
+        this.canvas.addEventListener('mousedown', (e) => {
+          if (!this.isRunning) return;
+          sound.init();
+          if (e.button === 0) {
+            this.input.beam = true;
+            sound.setTractorBeamActive(true);
+          } else if (e.button === 2) {
+            this.input.scan = true;
+            sound.playScan();
+          }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+          if (e.button === 0) {
+            this.input.beam = false;
+            sound.setTractorBeamActive(false);
+          } else if (e.button === 2) {
+            this.input.scan = false;
+          }
+        });
+
+        // Mouse Flight Mode Toggle Button
+        const mouseFollowBtn = document.getElementById('mouseFollowBtn');
+        const mouseFollowLabel = document.getElementById('mouseFollowLabel');
+        mouseFollowBtn.addEventListener('click', () => {
+          this.mouseAim = !this.mouseAim;
+          mouseFollowLabel.innerText = this.mouseAim ? 'Mouse Aim: On' : 'Mouse Aim: Off';
+          mouseFollowBtn.classList.toggle('border-cyan-400', this.mouseAim);
+          mouseFollowBtn.classList.toggle('text-cyan-300', this.mouseAim);
+        });
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+          if (!this.isRunning && (e.code === 'Space' || e.code === 'Enter')) {
+            if (!this.startModal.classList.contains('hidden')) {
+              this.start();
+              return;
+            }
+          }
+
+          switch (e.code) {
+            case 'ArrowLeft':
+            case 'KeyA':
+              this.input.left = true;
+              break;
+            case 'ArrowRight':
+            case 'KeyD':
+              this.input.right = true;
+              break;
+            case 'ArrowUp':
+            case 'KeyW':
+              this.input.up = true;
+              break;
+            case 'ArrowDown':
+            case 'KeyS':
+              this.input.down = true;
+              break;
+            case 'Space':
+              e.preventDefault();
+              if (!this.input.beam) {
+                sound.setTractorBeamActive(true);
+              }
+              this.input.beam = true;
+              break;
+            case 'KeyE':
+            case 'KeyC':
+            case 'ShiftLeft':
+            case 'ShiftRight':
+              this.input.scan = true;
+              sound.playScan();
+              break;
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          switch (e.code) {
+            case 'ArrowLeft':
+            case 'KeyA':
+              this.input.left = false;
+              break;
+            case 'ArrowRight':
+            case 'KeyD':
+              this.input.right = false;
+              break;
+            case 'ArrowUp':
+            case 'KeyW':
+              this.input.up = false;
+              break;
+            case 'ArrowDown':
+            case 'KeyS':
+              this.input.down = false;
+              break;
+            case 'Space':
+              this.input.beam = false;
+              sound.setTractorBeamActive(false);
+              break;
+            case 'KeyE':
+            case 'KeyC':
+            case 'ShiftLeft':
+            case 'ShiftRight':
+              this.input.scan = false;
+              break;
+          }
+        });
+
+        // Mobile touch buttons
+        const setupTouchBtn = (elId, pressFn, releaseFn) => {
+          const btn = document.getElementById(elId);
+          if (!btn) return;
+          const startEvts = ['pointerdown', 'touchstart', 'mousedown'];
+          const endEvts = ['pointerup', 'touchend', 'pointercancel', 'mouseup', 'mouseleave'];
+
+          startEvts.forEach(evt => btn.addEventListener(evt, (e) => {
+            e.preventDefault();
+            sound.init();
+            pressFn();
+          }));
+
+          endEvts.forEach(evt => btn.addEventListener(evt, (e) => {
+            e.preventDefault();
+            releaseFn();
+          }));
+        };
+
+        setupTouchBtn('btnLeft', () => this.input.left = true, () => this.input.left = false);
+        setupTouchBtn('btnRight', () => this.input.right = true, () => this.input.right = false);
+        setupTouchBtn('btnUp', () => this.input.up = true, () => this.input.up = false);
+        setupTouchBtn('btnDown', () => this.input.down = true, () => this.input.down = false);
+        setupTouchBtn('btnScan', 
+          () => { this.input.scan = true; sound.playScan(); }, 
+          () => { this.input.scan = false; }
+        );
+        setupTouchBtn('btnBeam', 
+          () => { this.input.beam = true; sound.setTractorBeamActive(true); }, 
+          () => { this.input.beam = false; sound.setTractorBeamActive(false); }
+        );
+
+        document.getElementById('startGameBtn').addEventListener('click', () => this.start());
+        document.getElementById('restartGameBtn').addEventListener('click', () => this.start());
+
+        document.getElementById('audioToggleBtn').addEventListener('click', () => {
+          sound.init();
+          const muted = sound.toggleMute();
+          document.getElementById('audioIcon').innerText = muted ? '🔇' : '🔊';
+        });
+
+        // Dossier drawer toggle
+        const toggleDossier = () => this.dossierDrawer.classList.toggle('translate-x-full');
+        document.getElementById('dossierBtn').addEventListener('click', toggleDossier);
+        document.getElementById('closeDossierBtn').addEventListener('click', () => this.dossierDrawer.classList.add('translate-x-full'));
+        document.getElementById('closeDossierFooterBtn').addEventListener('click', () => this.dossierDrawer.classList.add('translate-x-full'));
+
+        // Controls modal
+        document.getElementById('helpToggleBtn').addEventListener('click', () => this.helpModal.classList.toggle('hidden'));
+        document.getElementById('closeHelpBtn').addEventListener('click', () => this.helpModal.classList.add('hidden'));
+        document.getElementById('resumeFromHelpBtn').addEventListener('click', () => this.helpModal.classList.add('hidden'));
+
+        // Leaderboard modal
+        const openLb = () => {
+          this.populateLeaderboard();
+          this.leaderboardModal.classList.remove('hidden');
+        };
+        document.getElementById('leaderboardBtn').addEventListener('click', openLb);
+        document.getElementById('titleLeaderboardBtn').addEventListener('click', openLb);
+        document.getElementById('closeLeaderboardBtn').addEventListener('click', () => this.leaderboardModal.classList.add('hidden'));
+        document.getElementById('resumeFromLeaderboardBtn').addEventListener('click', () => this.leaderboardModal.classList.add('hidden'));
+
+        // 3-Letter Slot Picker Cyclers
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        document.querySelectorAll('.slot-up').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const slotIdx = parseInt(btn.dataset.slot, 10);
+            let current = this.slotLetters[slotIdx];
+            let nextIndex = (letters.indexOf(current) + 1) % letters.length;
+            this.slotLetters[slotIdx] = letters[nextIndex];
+            document.getElementById(`initialSlot${slotIdx}`).innerText = this.slotLetters[slotIdx];
+          });
+        });
+
+        document.querySelectorAll('.slot-down').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const slotIdx = parseInt(btn.dataset.slot, 10);
+            let current = this.slotLetters[slotIdx];
+            let prevIndex = (letters.indexOf(current) - 1 + letters.length) % letters.length;
+            this.slotLetters[slotIdx] = letters[prevIndex];
+            document.getElementById(`initialSlot${slotIdx}`).innerText = this.slotLetters[slotIdx];
+          });
+        });
+
+        document.getElementById('saveInitialsBtn').addEventListener('click', () => {
+          const val = this.slotLetters.join('');
+          this.saveScoreRecord(this.score, val);
+          this.initialsContainer.classList.add('hidden');
+        });
+      }
+
+      resize() {
+        this.canvas.width = this.canvas.parentElement.clientWidth;
+        this.canvas.height = this.canvas.parentElement.clientHeight;
+        this.groundY = Math.min(this.canvas.height - 85, 520);
+
+        if (this.humans) {
+          this.humans.forEach(h => {
+            h.groundY = this.groundY;
+            if (!h.isBeaming && h.y > this.groundY - 10) h.y = this.groundY;
+          });
+        }
+        if (this.scenery) {
+          this.scenery.forEach(s => s.y = this.groundY);
+        }
+        if (this.cows) {
+          this.cows.forEach(c => c.y = this.groundY);
+        }
+      }
+
+      triggerJail(human) {
+        this.isGameOver = true;
+        this.isRunning = false;
+        sound.setTractorBeamActive(false);
+        sound.playJailSirens();
+
+        // Record fatal violation in abduction manifest
+        this.recordAbduction(human, true);
+
+        this.jailOffenderName.innerText = human.name;
+        this.jailOffenderJob.innerText = `Occupation: ${human.occupation}`;
+        this.jailOffenderAvatar.innerText = human.avatar || '👨‍🌾';
+        this.jailFinalScore.innerText = this.score;
+        this.jailHighScore.innerText = Math.max(this.score, this.highScore);
+
+        // Populate Game Over manifest list
+        this.jailManifestCount.innerText = `${this.abductedDossier.length} specimens`;
+        this.jailManifestList.innerHTML = this.abductedDossier.map(item => `
+          <div class="flex items-center justify-between p-1.5 rounded ${item.isFatal ? 'bg-rose-950/80 text-rose-300 font-bold border border-rose-600' : 'bg-slate-900/90 text-slate-300'}">
+            <span class="truncate">${item.avatar} ${item.name}</span>
+            <span class="text-[10px] uppercase">${item.isFatal ? '⛔ VIOLATION' : '✔ HARVESTED'}</span>
+          </div>
+        `).join('');
+
+        // Prompt for initials if score is higher than all previous scores (or qualifies for top ranks)
+        const isAllTimeHighest = this.score > this.highScore;
+        const qualifiesForBoard = this.leaderboard.length < 5 || this.score > this.leaderboard[this.leaderboard.length - 1].score;
+        
+        if ((isAllTimeHighest || qualifiesForBoard) && this.score > 0) {
+          this.initialsContainer.classList.remove('hidden');
+        } else {
+          this.initialsContainer.classList.add('hidden');
+        }
+
+        const barsLayer = document.getElementById('jailBarsLayer');
+        barsLayer.classList.remove('jail-bars-anim');
+        void barsLayer.offsetWidth;
+        barsLayer.classList.add('jail-bars-anim');
+
+        this.jailModal.classList.remove('hidden');
+      }
+
+      handleBeams() {
+        const cone = this.saucer.getBeamCone(this.groundY);
+        this.saucer.beaming = this.input.beam;
+        this.saucer.scanning = this.input.scan;
+
+        const altDisplay = document.getElementById('altMeterDisplay');
+        const focusBar = document.getElementById('coneFocusBar');
+        const focusLabel = document.getElementById('coneFocusLabel');
+        if (altDisplay && focusBar && focusLabel) {
+          const altMeters = Math.max(10, Math.round(cone.altitude));
+          altDisplay.innerText = `${altMeters}m`;
+          const focusPct = Math.max(10, Math.min(100, (cone.bottomRadius / 140) * 100));
+          focusBar.style.width = `${focusPct}%`;
+          focusLabel.innerText = cone.bottomRadius < 38 ? 'PINPOINT RAY' : (cone.bottomRadius < 75 ? 'FOCUSED CONE' : 'WIDE CONE');
+          focusLabel.className = cone.bottomRadius < 38 ? 'text-cyan-400 font-bold text-[9px]' : 'text-slate-400 text-[9px]';
+        }
+
+        let detectedTarget = null;
+        let closestScanDist = Infinity;
+
+        // Candidate for single isolated human in tractor beam
+        let primaryTarget = null;
+        let minTractorDist = Infinity;
+
+        this.humans.forEach(human => {
+          if (human.abducted) return;
+
+          const progressY = (human.y - cone.topY) / (cone.bottomY - cone.topY);
+          const clampedProgress = Math.max(0, Math.min(1, progressY));
+          const currentBeamRadius = cone.topRadius + (cone.bottomRadius - cone.topRadius) * clampedProgress;
+
+          const dx = Math.abs(human.x - cone.topX);
+          const insideBeamX = dx < currentBeamRadius;
+          const insideAltitude = human.y >= cone.topY && human.y <= this.groundY + 10;
+
+          const isDirectlyBelow = dx < Math.max(26, currentBeamRadius * 0.7);
+          const altitudeProximity = Math.abs((this.saucer.y + 20) - human.y);
+
+          // Reveal inspection bio card on active scan or close hover
+          if ((this.input.scan && insideBeamX) || (isDirectlyBelow && altitudeProximity < 300)) {
+            human.isInspected = true;
+            if (dx < closestScanDist) {
+              closestScanDist = dx;
+              detectedTarget = human;
+            }
+          } else {
+            human.isInspected = false;
+          }
+
+          if (this.input.beam && insideBeamX && insideAltitude) {
+            if (dx < minTractorDist) {
+              minTractorDist = dx;
+              primaryTarget = human;
+            }
+          }
+        });
+
+        // Pull ONLY the isolated human centered in the tractor beam
+        this.humans.forEach(human => {
+          if (human.abducted) return;
+
+          if (this.input.beam && human === primaryTarget) {
+            human.isBeaming = true;
+            human.x += (cone.topX - human.x) * 0.12;
+            human.y -= 2.6;
+
+            if (Math.random() < 0.4) {
+              this.particles.push(new Particle(
+                human.x + (Math.random() * 20 - 10),
+                human.y + (Math.random() * 20 - 10),
+                (Math.random() - 0.5) * 1.5,
+                -2 - Math.random() * 2,
+                '#34d399',
+                Math.random() * 3 + 1,
+                24
+              ));
+            }
+
+            // Human reaches UFO hatch
+            if (human.y <= this.saucer.y + 12) {
+              human.abducted = true;
+              human.isBeaming = false;
+
+              if (human.hasCard) {
+                // DO NOT ABDUCT card violation: Straight to Intergalactic Jail!
+                this.triggerJail(human);
+                return;
+              } else {
+                // Valid abduction: score +1 point, record in manifest, spawn replacement human
+                this.score += 1;
+                this.recordAbduction(human, false);
+                sound.playAbductionSuccess();
+                this.updateScoreHUD();
+
+                for (let p = 0; p < 18; p++) {
+                  this.particles.push(new Particle(
+                    this.saucer.x,
+                    this.saucer.y + 10,
+                    (Math.random() - 0.5) * 6,
+                    (Math.random() - 0.5) * 6,
+                    '#38bdf8',
+                    Math.random() * 4 + 2,
+                    35
+                  ));
+                }
+
+                // Replenish the ground crowd with an active deduplicated character
+                setTimeout(() => {
+                  if (this.isRunning) {
+                    const uniquePerson = this.getUniquePerson(human);
+                    human.reset(Math.floor(Math.random() * this.humans.length), this.humans.length, uniquePerson);
+                  }
+                }, 2600);
+              }
+            }
+          } else {
+            // Releasing the beam button immediately stops tractor power: human falls back down unharmed
+            human.isBeaming = false;
+          }
+        });
+
+        this.updateScannerHUD(detectedTarget);
+      }
+
+      updateScannerHUD(target) {
+        if (target && !this.isGameOver) {
+          this.scannerHUD.classList.remove('opacity-0', '-translate-y-3', 'scale-95');
+          this.scannerHUD.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+
+          this.targetName.innerText = `• ${target.name.toUpperCase()}`;
+          this.targetRole.innerText = target.occupation;
+          this.targetQuirk.innerText = target.mood;
+          this.targetSpeedClass.innerText = target.speedClass;
+
+          if (target.hasCard) {
+            this.targetBadge.className = 'mt-2 text-[10px] sm:text-[11px] font-bold font-arcade tracking-wider px-2.5 py-1 rounded-md bg-rose-950/90 text-rose-200 border border-rose-500/70 inline-flex items-center gap-1.5 arcade-glow-red animate-pulse';
+            this.targetBadge.innerHTML = '<span>⛔</span> DO NOT ABDUCT - DIPLOMATIC IMMUNITY';
+          } else {
+            this.targetBadge.className = 'mt-2 text-[10px] sm:text-[11px] font-bold font-arcade tracking-wider px-2.5 py-1 rounded-md bg-emerald-950/90 text-emerald-200 border border-emerald-500/70 inline-flex items-center gap-1.5 arcade-glow-cyan';
+            this.targetBadge.innerHTML = '<span>✔</span> CLEARED FOR HARVEST';
+          }
+
+          this.targetAvatar.innerText = target.avatar || '👨‍🌾';
+        } else {
+          this.scannerHUD.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+          this.scannerHUD.classList.add('opacity-0', '-translate-y-3', 'scale-95');
+        }
+      }
+
+      drawEnvironment() {
+        const ctx = this.ctx;
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+
+        // Night Sky Gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, this.groundY);
+        skyGrad.addColorStop(0, '#020617');
+        skyGrad.addColorStop(0.65, '#0f172a');
+        skyGrad.addColorStop(1, '#1e1b4b');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Starfield
+        this.stars.forEach(star => {
+          const starScreenX = (star.x - this.cameraX * 0.2 + this.worldWidth) % this.worldWidth;
+          if (starScreenX >= 0 && starScreenX <= w) {
+            star.alpha += (Math.random() - 0.5) * star.twinkleSpeed;
+            star.alpha = Math.max(0.2, Math.min(0.9, star.alpha));
+            ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+            ctx.beginPath();
+            ctx.arc(starScreenX, star.y, star.radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+
+        // Glowing Moon
+        const moonX = 240 - this.cameraX * 0.05;
+        const moonGrad = ctx.createRadialGradient(moonX, 90, 8, moonX, 90, 50);
+        moonGrad.addColorStop(0, 'rgba(254, 240, 138, 0.95)');
+        moonGrad.addColorStop(0.5, 'rgba(253, 224, 71, 0.35)');
+        moonGrad.addColorStop(1, 'rgba(253, 224, 71, 0)');
+        ctx.fillStyle = moonGrad;
+        ctx.beginPath();
+        ctx.arc(moonX, 90, 50, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(moonX, 90, 24, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Distant Mountain Ridges
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.moveTo(0, this.groundY);
+        for (let x = 0; x <= w + 40; x += 40) {
+          const worldX = x + this.cameraX * 0.4;
+          const hillY = this.groundY - 110 + Math.sin(worldX * 0.003) * 60 + Math.sin(worldX * 0.008) * 25;
+          ctx.lineTo(x, hillY);
+        }
+        ctx.lineTo(w, this.groundY);
+        ctx.fill();
+
+        // Rolling Forehills
+        ctx.fillStyle = '#064e3b';
+        ctx.beginPath();
+        ctx.moveTo(0, this.groundY);
+        for (let x = 0; x <= w + 30; x += 30) {
+          const worldX = x + this.cameraX * 0.7;
+          const hillY = this.groundY - 50 + Math.sin(worldX * 0.005) * 35;
+          ctx.lineTo(x, hillY);
+        }
+        ctx.lineTo(w, this.groundY);
+        ctx.fill();
+
+        // Ground Meadow
+        ctx.fillStyle = '#022c22';
+        ctx.fillRect(0, this.groundY, w, h - this.groundY);
+
+        ctx.strokeStyle = '#059669';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, this.groundY);
+        ctx.lineTo(w, this.groundY);
+        ctx.stroke();
+
+        // Grazing cows in the background
+        this.cows.forEach(cow => {
+          const cx = cow.x - this.cameraX;
+          if (cx < -40 || cx > w + 40) return;
+
+          ctx.save();
+          ctx.translate(cx, cow.y);
+          ctx.scale(cow.facing, 1);
+
+          // Body
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.roundRect(-16, -22, 28, 16, 4);
+          ctx.fill();
+
+          // Black spots
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(-6, -16, 5, 0, Math.PI * 2);
+          ctx.arc(4, -14, 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Legs
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(-12, -6);
+          ctx.lineTo(-12, 0);
+          ctx.moveTo(-4, -6);
+          ctx.lineTo(-4, 0);
+          ctx.moveTo(6, -6);
+          ctx.lineTo(6, 0);
+          ctx.moveTo(10, -6);
+          ctx.lineTo(10, 0);
+          ctx.stroke();
+
+          // Head
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.roundRect(10, -25, 9, 10, 2);
+          ctx.fill();
+
+          // Snout
+          ctx.fillStyle = '#fbcfe8';
+          ctx.fillRect(17, -21, 3, 5);
+
+          ctx.restore();
+        });
+
+        // Pastoral / Suburban Scenery (Red Barns, Houses, Trees, Fence Posts, Lamps)
+        this.scenery.forEach(item => {
+          const sx = item.x - this.cameraX;
+          if (sx < -100 || sx > w + 100) return;
+
+          if (item.type === 'barn') {
+            // Traditional Red Barn
+            ctx.fillStyle = item.color;
+            ctx.fillRect(sx - item.width / 2, item.y - item.height, item.width, item.height);
+
+            // Barn Gambrel Roof
+            ctx.fillStyle = item.roofColor;
+            ctx.beginPath();
+            ctx.moveTo(sx - item.width / 2 - 4, item.y - item.height);
+            ctx.lineTo(sx - item.width / 4, item.y - item.height - 22);
+            ctx.lineTo(sx, item.y - item.height - 28);
+            ctx.lineTo(sx + item.width / 4, item.y - item.height - 22);
+            ctx.lineTo(sx + item.width / 2 + 4, item.y - item.height);
+            ctx.closePath();
+            ctx.fill();
+
+            // Barn Double Doors with white X bracing
+            ctx.fillStyle = '#450a0a';
+            ctx.fillRect(sx - 16, item.y - 32, 32, 32);
+            ctx.strokeStyle = '#f8fafc';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(sx - 16, item.y - 32, 32, 32);
+            ctx.beginPath();
+            ctx.moveTo(sx - 16, item.y - 32); ctx.lineTo(sx + 16, item.y);
+            ctx.moveTo(sx + 16, item.y - 32); ctx.lineTo(sx - 16, item.y);
+            ctx.stroke();
+
+            // Loft window
+            ctx.fillStyle = item.lit ? '#fde047' : '#1f2937';
+            ctx.fillRect(sx - 8, item.y - item.height + 6, 16, 14);
+          } else if (item.type === 'house') {
+            ctx.fillStyle = item.color;
+            ctx.fillRect(sx - item.width / 2, item.y - item.height, item.width, item.height);
+
+            // Roof
+            ctx.fillStyle = item.roofColor;
+            ctx.beginPath();
+            ctx.moveTo(sx - item.width / 2 - 6, item.y - item.height);
+            ctx.lineTo(sx, item.y - item.height - 24);
+            ctx.lineTo(sx + item.width / 2 + 6, item.y - item.height);
+            ctx.closePath();
+            ctx.fill();
+
+            // Window
+            ctx.fillStyle = item.lit ? '#fde047' : '#334155';
+            ctx.fillRect(sx - 12, item.y - item.height + 14, 24, 16);
+            if (item.lit) {
+              ctx.fillStyle = 'rgba(253, 224, 71, 0.2)';
+              ctx.beginPath();
+              ctx.arc(sx, item.y - item.height + 22, 24, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          } else if (item.type === 'tree') {
+            ctx.fillStyle = '#451a03';
+            ctx.fillRect(sx - 5, item.y - 25, 10, 25);
+
+            ctx.fillStyle = '#064e3b';
+            ctx.beginPath();
+            ctx.moveTo(sx, item.y - item.height);
+            ctx.lineTo(sx - 22, item.y - 22);
+            ctx.lineTo(sx + 22, item.y - 22);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#047857';
+            ctx.beginPath();
+            ctx.moveTo(sx, item.y - item.height + 15);
+            ctx.lineTo(sx - 18, item.y - 20);
+            ctx.lineTo(sx + 18, item.y - 20);
+            ctx.closePath();
+            ctx.fill();
+          } else if (item.type === 'fence') {
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(sx - 3, item.y - item.height, item.width, item.height);
+            ctx.fillRect(sx - 35, item.y - item.height + 6, 70, 3);
+            ctx.fillRect(sx - 35, item.y - item.height + 14, 70, 3);
+          } else if (item.type === 'lamp') {
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(sx, item.y);
+            ctx.lineTo(sx, item.y - item.height);
+            ctx.lineTo(sx + 10, item.y - item.height);
+            ctx.stroke();
+
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(sx + 10, item.y - item.height + 3, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            const lampGrad = ctx.createRadialGradient(sx + 10, item.y - item.height + 3, 2, sx + 10, item.y, 70);
+            lampGrad.addColorStop(0, 'rgba(254, 240, 138, 0.25)');
+            lampGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+            ctx.fillStyle = lampGrad;
+            ctx.beginPath();
+            ctx.moveTo(sx + 10, item.y - item.height + 3);
+            ctx.lineTo(sx - 20, item.y);
+            ctx.lineTo(sx + 40, item.y);
+            ctx.closePath();
+            ctx.fill();
+          }
+        });
+      }
+
+      drawBeams() {
+        const ctx = this.ctx;
+        const cone = this.saucer.getBeamCone(this.groundY);
+        const topScreenX = cone.topX - this.cameraX;
+
+        // Scanner Sonar Cone
+        if (this.input.scan) {
+          ctx.save();
+          const scanGrad = ctx.createLinearGradient(0, cone.topY, 0, cone.bottomY);
+          scanGrad.addColorStop(0, 'rgba(59, 130, 246, 0.7)');
+          scanGrad.addColorStop(0.5, 'rgba(96, 165, 250, 0.35)');
+          scanGrad.addColorStop(1, 'rgba(147, 197, 253, 0.1)');
+
+          ctx.fillStyle = scanGrad;
+          ctx.beginPath();
+          ctx.moveTo(topScreenX - cone.topRadius, cone.topY);
+          ctx.lineTo(topScreenX + cone.topRadius, cone.topY);
+          ctx.lineTo(topScreenX + cone.bottomRadius * 0.9, cone.bottomY);
+          ctx.lineTo(topScreenX - cone.bottomRadius * 0.9, cone.bottomY);
+          ctx.closePath();
+          ctx.fill();
+
+          // Horizontal laser sweep bar
+          const scanY = cone.topY + ((Date.now() * 0.32) % (cone.bottomY - cone.topY));
+          ctx.strokeStyle = '#60a5fa';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          const scanProgress = (scanY - cone.topY) / (cone.bottomY - cone.topY);
+          const scanR = cone.topRadius + (cone.bottomRadius * 0.9 - cone.topRadius) * scanProgress;
+          ctx.moveTo(topScreenX - scanR, scanY);
+          ctx.lineTo(topScreenX + scanR, scanY);
+          ctx.stroke();
+
+          ctx.restore();
+        }
+
+        // Dynamic Tractor Beam
+        if (this.input.beam) {
+          ctx.save();
+          const beamGrad = ctx.createLinearGradient(0, cone.topY, 0, cone.bottomY);
+          beamGrad.addColorStop(0, 'rgba(52, 211, 153, 0.85)');
+          beamGrad.addColorStop(0.4, 'rgba(16, 185, 129, 0.45)');
+          beamGrad.addColorStop(0.9, 'rgba(6, 182, 212, 0.25)');
+          beamGrad.addColorStop(1, 'rgba(6, 182, 212, 0.05)');
+
+          ctx.fillStyle = beamGrad;
+          ctx.beginPath();
+          ctx.moveTo(topScreenX - cone.topRadius, cone.topY);
+          ctx.lineTo(topScreenX + cone.topRadius, cone.topY);
+          ctx.lineTo(topScreenX + cone.bottomRadius, cone.bottomY);
+          ctx.lineTo(topScreenX - cone.bottomRadius, cone.bottomY);
+          ctx.closePath();
+          ctx.fill();
+
+          // Ascending rings
+          const pulseOffset = (Date.now() * 0.08) % 32;
+          ctx.strokeStyle = 'rgba(167, 243, 208, 0.65)';
+          ctx.lineWidth = 1.5;
+
+          for (let y = cone.bottomY - pulseOffset; y > cone.topY; y -= 32) {
+            const progress = (y - cone.topY) / (cone.bottomY - cone.topY);
+            const radius = cone.topRadius + (cone.bottomRadius - cone.topRadius) * progress;
+            ctx.beginPath();
+            ctx.ellipse(topScreenX, y, radius, radius * 0.25, 0, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+
+          // Ground contact ripple
+          ctx.fillStyle = 'rgba(52, 211, 153, 0.5)';
+          ctx.beginPath();
+          ctx.ellipse(topScreenX, cone.bottomY, cone.bottomRadius, cone.bottomRadius * 0.25, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.restore();
+        }
+      }
+
+      updateCamera() {
+        const targetCamX = this.saucer.x - this.canvas.width * 0.5;
+        this.cameraX += (targetCamX - this.cameraX) * 0.1;
+        this.cameraX = Math.max(0, Math.min(this.worldWidth - this.canvas.width, this.cameraX));
+      }
+
+      loop(currentTime) {
+        if (this.isRunning) {
+          this.saucer.update(this.input, this.worldWidth, this.groundY, this.mouseAim, this.mousePos, this.cameraX);
+          this.updateCamera();
+          this.handleBeams();
+          
+          this.humans.forEach(h => h.update(this.humans, this.particles));
+
+          for (let i = this.particles.length - 1; i >= 0; i--) {
+            this.particles[i].update();
+            if (this.particles[i].life <= 0) {
+              this.particles.splice(i, 1);
+            }
+          }
+        }
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawEnvironment();
+        this.drawBeams();
+        this.humans.forEach(h => h.draw(this.ctx, this.cameraX));
+        this.saucer.draw(this.ctx, this.cameraX);
+
+        this.particles.forEach(p => {
+          const screenP = { ...p, x: p.x - this.cameraX };
+          p.draw(this.ctx);
+        });
+
+        requestAnimationFrame((t) => this.loop(t));
+      }
+    }
+
+    window.addEventListener('load', () => {
+      window.game = new Game();
+    });
+  </script>
+</body>
+</html>
