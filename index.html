@@ -47,11 +47,29 @@
     .glow-red {
       box-shadow: 0 0 30px rgba(239, 68, 68, 0.8), inset 0 0 20px rgba(239, 68, 68, 0.4);
     }
+
+    /* Reliable Responsive visibility rules for controls */
+    @media (pointer: coarse), (max-width: 1024px) {
+      #mobile-touch-controls {
+        display: flex !important;
+      }
+      #controls-panel {
+        display: none !important;
+      }
+    }
+    @media (pointer: fine) and (min-width: 1025px) {
+      #mobile-touch-controls {
+        display: none !important;
+      }
+      #controls-panel {
+        display: block !important;
+      }
+    }
   </style>
 </head>
 <body class="w-screen h-screen relative bg-slate-950 flex flex-col items-center justify-center crt-overlay overflow-hidden">
 
-  <!-- Main Game Canvas Container (Strictly 100vw & 100vh, No Scrollbars) -->
+  <!-- Main Game Canvas Container -->
   <div id="game-container" class="relative w-screen h-screen max-w-full max-h-full overflow-hidden">
     <canvas id="gameCanvas" class="w-full h-full block"></canvas>
 
@@ -95,7 +113,7 @@
       </div>
     </header>
 
-    <!-- Upper Center Controls HUD (Desktop/PC ONLY: Centered, significantly larger, and hidden on mobile/touch) -->
+    <!-- Upper Center Controls HUD (Desktop/PC ONLY: Centered, larger, hidden on mobile) -->
     <div id="controls-panel" class="absolute top-12 left-1/2 -translate-x-1/2 z-20 pointer-events-auto bg-slate-900/95 border-2 border-cyan-500/60 backdrop-blur-md rounded-2xl p-4 text-base text-slate-100 min-w-[390px] max-w-lg shadow-2xl shadow-cyan-950/70 transition-all duration-200 hidden">
       <div class="flex items-center justify-between border-b border-slate-700/80 pb-2 gap-3">
         <div class="text-sm sm:text-base font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
@@ -149,33 +167,33 @@
       </div>
     </div>
 
-    <!-- On-Screen Mobile Touch Controls: Positioned strictly BELOW the street (bottom dock) to eliminate gameplay overlap -->
-    <div id="mobile-touch-controls" class="absolute bottom-0 left-0 right-0 h-[148px] z-30 flex justify-between items-center px-4 bg-slate-950/95 border-t-2 border-cyan-500/60 backdrop-blur-md shadow-2xl shadow-cyan-950/80 pointer-events-auto hidden">
-      <!-- Left: Ergonomic D-Pad Directionals -->
-      <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-700">
+    <!-- Mobile Touch Controls: Fixed bottom dock below the street level -->
+    <div id="mobile-touch-controls" class="absolute bottom-0 left-0 right-0 h-[140px] z-30 flex justify-between items-center px-3 bg-slate-950/95 border-t-2 border-cyan-500/60 backdrop-blur-md shadow-2xl shadow-cyan-950/80 pointer-events-auto">
+      <!-- Left: D-Pad Directionals -->
+      <div class="grid grid-cols-3 gap-1 p-1 bg-slate-900/90 rounded-2xl border border-slate-700">
         <div></div>
-        <button id="touch-up" class="w-12 h-10 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-xl font-bold flex items-center justify-center text-lg shadow border border-slate-700">▲</button>
+        <button id="touch-up" class="w-11 h-9 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-lg font-bold flex items-center justify-center text-base shadow border border-slate-700">▲</button>
         <div></div>
-        <button id="touch-left" class="w-12 h-10 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-xl font-bold flex items-center justify-center text-lg shadow border border-slate-700">◀</button>
-        <button id="touch-down" class="w-12 h-10 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-xl font-bold flex items-center justify-center text-lg shadow border border-slate-700">▼</button>
-        <button id="touch-right" class="w-12 h-10 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-xl font-bold flex items-center justify-center text-lg shadow border border-slate-700">▶</button>
+        <button id="touch-left" class="w-11 h-9 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-lg font-bold flex items-center justify-center text-base shadow border border-slate-700">◀</button>
+        <button id="touch-down" class="w-11 h-9 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-lg font-bold flex items-center justify-center text-base shadow border border-slate-700">▼</button>
+        <button id="touch-right" class="w-11 h-9 bg-slate-800 active:bg-cyan-600 text-cyan-300 rounded-lg font-bold flex items-center justify-center text-base shadow border border-slate-700">▶</button>
       </div>
 
-      <!-- Center Guidance Badge -->
+      <!-- Center Status Badge -->
       <div class="hidden xs:flex flex-col items-center justify-center text-center px-1">
         <span class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Flight Deck</span>
-        <span class="text-[9px] text-slate-400">Controls Dock</span>
+        <span class="text-[8px] text-slate-400 font-mono">Beam & Scan</span>
       </div>
 
       <!-- Right: Action Buttons (Scan & Beam) -->
-      <div class="flex gap-2.5 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-700">
-        <button id="touch-scan" class="w-16 h-20 bg-cyan-600 active:bg-cyan-400 text-white rounded-2xl font-bold flex flex-col items-center justify-center shadow-lg border-2 border-cyan-300">
-          <span class="text-2xl leading-none">🔍</span>
-          <span class="mt-1 font-mono text-xs font-bold">SCAN</span>
+      <div class="flex gap-2 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-700">
+        <button id="touch-scan" class="w-14 h-18 bg-cyan-600 active:bg-cyan-400 text-white rounded-xl font-bold flex flex-col items-center justify-center shadow-lg border-2 border-cyan-300">
+          <span class="text-xl leading-none">🔍</span>
+          <span class="mt-1 font-mono text-[10px] font-bold">SCAN</span>
         </button>
-        <button id="touch-beam" class="w-16 h-20 bg-lime-600 active:bg-lime-400 text-white rounded-2xl font-bold flex flex-col items-center justify-center shadow-lg border-2 border-lime-300">
-          <span class="text-2xl leading-none">⚡</span>
-          <span class="mt-1 font-mono text-xs font-bold">BEAM</span>
+        <button id="touch-beam" class="w-14 h-18 bg-lime-600 active:bg-lime-400 text-white rounded-xl font-bold flex flex-col items-center justify-center shadow-lg border-2 border-lime-300">
+          <span class="text-xl leading-none">⚡</span>
+          <span class="mt-1 font-mono text-[10px] font-bold">BEAM</span>
         </button>
       </div>
     </div>
@@ -223,7 +241,7 @@
           </div>
         </div>
 
-        <!-- High Score Entry Form (Shown conditionally if player qualifies) -->
+        <!-- High Score Entry Form (Conditional) -->
         <div id="high-score-form" class="mb-3 bg-slate-800/80 p-2.5 rounded-xl border border-yellow-500/40 hidden">
           <div class="pixel-font text-[10px] text-yellow-300 mb-1.5">★ NEW HIGH SCORE! ★</div>
           <div class="grid grid-cols-2 gap-2 text-left mb-1.5">
@@ -304,13 +322,9 @@
 
   </div>
 
-  <!-- Cloud Database Integration for cross-device high scores -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    class CloudLeaderboard {
+  <!-- High Scores Handler -->
+  <script>
+    class LeaderboardManager {
       constructor() {
         this.records = [
           { name: "ZORBLAX", city: "ROSWELL", score: 20 },
@@ -319,88 +333,6 @@
           { name: "XENON", city: "AUSTIN", score: 7 },
           { name: "CYGNUS", city: "BERLIN", score: 4 }
         ];
-        this.db = null;
-        this.auth = null;
-        this.user = null;
-        this.appId = typeof __app_id !== 'undefined' ? __app_id : 'intergalactic-abduction-game';
-        this.isCloudActive = false;
-        this.init();
-      }
-
-      async init() {
-        try {
-          if (typeof __firebase_config !== 'undefined') {
-            const firebaseConfig = JSON.parse(__firebase_config);
-            const app = initializeApp(firebaseConfig);
-            this.auth = getAuth(app);
-            this.db = getFirestore(app);
-
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-              await signInWithCustomToken(this.auth, __initial_auth_token);
-            } else {
-              await signInAnonymously(this.auth);
-            }
-            this.user = this.auth.currentUser;
-
-            if (this.user) {
-              this.isCloudActive = true;
-              this.listenToGlobalScores();
-            }
-          }
-        } catch (e) {
-          console.warn('Cloud sync offline, falling back to local leaderboard.', e);
-        }
-      }
-
-      listenToGlobalScores() {
-        if (!this.db || !this.user) return;
-        const colRef = collection(this.db, 'artifacts', this.appId, 'public', 'data', 'highscores');
-        
-        onSnapshot(colRef, (snapshot) => {
-          const fetched = [];
-          snapshot.forEach((doc) => {
-            const d = doc.data();
-            if (d && typeof d.score === 'number') {
-              fetched.push({
-                name: String(d.name || 'PILOT').slice(0, 10),
-                city: String(d.city || 'UNKNOWN').slice(0, 10),
-                score: d.score,
-                timestamp: d.timestamp || 0
-              });
-            }
-          });
-
-          if (fetched.length > 0) {
-            fetched.sort((a, b) => b.score - a.score);
-            this.records = fetched.slice(0, 10);
-          }
-          if (window.gameInstance) {
-            window.gameInstance.updateHUD();
-          }
-        }, (err) => {
-          console.warn('Snapshot listener error:', err);
-        });
-      }
-
-      async submitScore(name, city, score) {
-        this.records.push({ name, city, score, timestamp: Date.now() });
-        this.records.sort((a, b) => b.score - a.score);
-        this.records = this.records.slice(0, 10);
-
-        if (this.isCloudActive && this.db && this.user) {
-          try {
-            const colRef = collection(this.db, 'artifacts', this.appId, 'public', 'data', 'highscores');
-            await addDoc(colRef, {
-              name,
-              city,
-              score,
-              userId: this.user.uid,
-              timestamp: Date.now()
-            });
-          } catch (e) {
-            console.error('Failed to post highscore to cloud database:', e);
-          }
-        }
       }
 
       getScores() {
@@ -412,30 +344,29 @@
         if (this.records.length < 5) return true;
         return score > this.records[this.records.length - 1].score;
       }
+
+      submitScore(name, city, score) {
+        this.records.push({ name, city, score, timestamp: Date.now() });
+        this.records.sort((a, b) => b.score - a.score);
+        this.records = this.records.slice(0, 10);
+      }
     }
 
-    window.cloudLeaderboard = new CloudLeaderboard();
+    window.cloudLeaderboard = new LeaderboardManager();
   </script>
 
+  <!-- Audio, Logic and Engine -->
   <script>
-    /**
-     * Web Audio API Synthesizer
-     * Provides procedural sound effects without external audio assets.
-     */
     class SoundEngine {
       constructor() {
         this.ctx = null;
         this.enabled = true;
         this.humOsc = null;
         this.humGain = null;
-
-        // FM Tractor Beam nodes
         this.carrier = null;
         this.modulator = null;
         this.modGain = null;
         this.tractorGain = null;
-
-        // Human scream throttling
         this.lastScreamTime = 0;
       }
 
@@ -647,7 +578,6 @@
 
     const sound = new SoundEngine();
 
-    // Obscenity Filter & Sanitizer
     const BANNED_WORDS = [
       'ASS', 'BITCH', 'SHIT', 'FUCK', 'DAMN', 'CRAP', 'DICK', 'COCK', 'PISS',
       'CUNT', 'BASTARD', 'SLUT', 'WHORE', 'NAZI', 'HITLER', 'KKK', 'NIGG', 'FAG'
@@ -667,32 +597,22 @@
       if (window.cloudLeaderboard) {
         return window.cloudLeaderboard.getScores();
       }
-      return [
-        { name: "ZORBLAX", city: "ROSWELL", score: 20 },
-        { name: "GLIESE-9", city: "TOKYO", score: 15 },
-        { name: "NEBULA", city: "LONDON", score: 11 },
-        { name: "XENON", city: "AUSTIN", score: 7 },
-        { name: "CYGNUS", city: "BERLIN", score: 4 }
-      ];
+      return [];
     }
 
     function checkQualifiesHighScore(score) {
       if (window.cloudLeaderboard) {
         return window.cloudLeaderboard.checkQualifies(score);
       }
-      if (score <= 0) return false;
-      const records = loadHighScores();
-      if (records.length < 5) return true;
-      return score > records[records.length - 1].score;
+      return false;
     }
 
-    async function saveHighScoreEntry(name, city, score) {
+    function saveHighScoreEntry(name, city, score) {
       if (window.cloudLeaderboard) {
-        await window.cloudLeaderboard.submitScore(name, city, score);
+        window.cloudLeaderboard.submitScore(name, city, score);
       }
     }
 
-    // Procedural Unique Humans
     const PROFESSIONS = [
       { prefix: "Farmer", job: "Farmer", icon: "🌾", hat: "straw", color: "#eab308" },
       { prefix: "Baker", job: "Baker", icon: "🥖", hat: "chef", color: "#f8fafc" },
@@ -776,7 +696,6 @@
 
     const registry = new UniqueNameRegistry();
 
-    // Human Entity
     class Human {
       constructor(x, groundY, worldWidth) {
         this.worldWidth = worldWidth;
@@ -784,7 +703,7 @@
         this.x = x;
         this.y = groundY;
         this.width = 18;
-        this.height = 32;
+        this.height = 30;
 
         const info = registry.getUniquePerson();
         this.name = info.fullName;
@@ -793,15 +712,14 @@
         this.hat = info.hat;
         this.suitColor = info.suitColor;
 
-        // Exactly 50/50 ratio
         this.hasDoNotAbductCard = Math.random() < 0.50;
         this.isScanned = false;
 
         const direction = Math.random() < 0.5 ? -1 : 1;
-        const randomSpeed = 0.35 + Math.random() * 1.0;
+        const randomSpeed = 0.4 + Math.random() * 0.9;
         this.vx = direction * randomSpeed;
 
-        this.state = 'WALKING'; // WALKING, LIFTING, FALLING
+        this.state = 'WALKING';
         this.fallSpeed = 0;
         this.walkCycle = Math.random() * 10;
         this.bubbleText = "";
@@ -892,18 +810,18 @@
         ctx.lineWidth = 3;
         ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.moveTo(-3, bodyY + 20);
-        ctx.lineTo(-4 + (this.state === 'WALKING' ? legOff : -2), bodyY + 32);
+        ctx.moveTo(-3, bodyY + 18);
+        ctx.lineTo(-4 + (this.state === 'WALKING' ? legOff : -2), bodyY + 30);
         ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(3, bodyY + 20);
-        ctx.lineTo(4 - (this.state === 'WALKING' ? legOff : -2), bodyY + 32);
+        ctx.moveTo(3, bodyY + 18);
+        ctx.lineTo(4 - (this.state === 'WALKING' ? legOff : -2), bodyY + 30);
         ctx.stroke();
 
         // Torso / Suit with sharp contrast outline
         ctx.fillStyle = this.suitColor;
         ctx.beginPath();
-        ctx.roundRect(-6, bodyY + 9, 12, 13, [3, 3, 2, 2]);
+        ctx.roundRect(-6, bodyY + 8, 12, 12, [3, 3, 2, 2]);
         ctx.fill();
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 1;
@@ -912,7 +830,7 @@
         // Head with bold outline
         ctx.fillStyle = '#fef08a';
         ctx.beginPath();
-        ctx.arc(0, bodyY + 5, 5, 0, Math.PI * 2);
+        ctx.arc(0, bodyY + 4, 5, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#020617';
         ctx.lineWidth = 1;
@@ -1021,7 +939,6 @@
       }
     }
 
-    // Flying Saucer Player Class
     class FlyingSaucer {
       constructor(width, height, groundY) {
         this.updateBounds(width, height, groundY);
@@ -1046,7 +963,7 @@
         this.minX = saucerHalfWidth;
         this.maxX = width - saucerHalfWidth;
         this.minY = 65;
-        this.maxY = groundY - 70;
+        this.maxY = Math.max(this.minY + 40, groundY - 65);
       }
 
       update(inputs) {
@@ -1243,22 +1160,23 @@
       }
     }
 
-    // Scenery & Background World
     class StarfieldWorld {
       constructor(width, height) {
         this.buildings = [];
         this.stars = [];
-        this.resize(width, height);
+        this.resize(width, height, false);
       }
 
       generateBuildings() {
         this.buildings = [];
-        const numBuildings = Math.max(6, Math.floor(this.width / 130));
+        const numBuildings = Math.max(5, Math.floor(this.width / 110));
         const segWidth = this.width / numBuildings;
 
         for (let i = 0; i < numBuildings; i++) {
           const bWidth = segWidth * (0.65 + Math.random() * 0.28);
-          const bHeight = 120 + Math.random() * 170;
+          // Scale building height according to sky headroom
+          const maxAllowedHeight = Math.max(80, this.groundY - 110);
+          const bHeight = Math.min(maxAllowedHeight, 80 + Math.random() * 140);
           const bX = i * segWidth + (segWidth - bWidth) / 2;
 
           const colors = [
@@ -1269,7 +1187,7 @@
           ];
           const theme = colors[i % colors.length];
 
-          const rows = Math.floor(bHeight / 24);
+          const rows = Math.max(2, Math.floor(bHeight / 24));
           const cols = Math.max(2, Math.floor(bWidth / 18));
           const windows = [];
           for (let r = 0; r < rows; r++) {
@@ -1278,8 +1196,8 @@
             }
           }
 
-          const doorWidth = 24;
-          const doorHeight = 32;
+          const doorWidth = 22;
+          const doorHeight = 28;
           const doorX = bX + (bWidth - doorWidth) / 2;
 
           this.buildings.push({
@@ -1304,15 +1222,18 @@
       resize(width, height, isMobile = false) {
         this.width = width;
         this.height = height;
-        // Lift ground well clear above the 148px mobile touch dock
-        const bottomOffset = isMobile ? 185 : 60;
-        this.groundY = height - bottomOffset;
+
+        // Position street comfortably above the bottom dock
+        const dockHeight = isMobile ? 144 : 0;
+        const streetHeight = isMobile ? 32 : 50;
+        this.groundY = height - dockHeight - streetHeight;
+
         this.generateBuildings();
         this.stars = [];
-        for (let i = 0; i < 80; i++) {
+        for (let i = 0; i < 70; i++) {
           this.stars.push({
             x: Math.random() * width,
-            y: Math.random() * (this.groundY - 80),
+            y: Math.random() * Math.max(30, this.groundY - 60),
             size: Math.random() * 2 + 0.5,
             blink: Math.random() * 0.05 + 0.01,
             phase: Math.random() * Math.PI * 2
@@ -1332,7 +1253,7 @@
         // Moon
         ctx.save();
         ctx.beginPath();
-        ctx.arc(this.width * 0.85, 80, 36, 0, Math.PI * 2);
+        ctx.arc(this.width * 0.85, 70, 32, 0, Math.PI * 2);
         ctx.fillStyle = '#fef08a';
         ctx.shadowColor = '#fef08a';
         ctx.shadowBlur = 20;
@@ -1352,7 +1273,7 @@
         ctx.beginPath();
         ctx.moveTo(0, this.groundY);
         for (let x = 0; x <= this.width; x += 110) {
-          const y = this.groundY - 65 - Math.sin(x * 0.018) * 35;
+          const y = this.groundY - 50 - Math.sin(x * 0.018) * 30;
           ctx.lineTo(x, y);
         }
         ctx.lineTo(this.width, this.groundY);
@@ -1363,16 +1284,18 @@
         this.drawTallBuildings(ctx);
 
         // Ground Sidewalk Backlight
-        const sidewalkGlow = ctx.createLinearGradient(0, this.groundY - 50, 0, this.groundY);
+        const sidewalkGlow = ctx.createLinearGradient(0, this.groundY - 45, 0, this.groundY);
         sidewalkGlow.addColorStop(0, 'rgba(2, 6, 23, 0)');
         sidewalkGlow.addColorStop(0.5, 'rgba(15, 23, 42, 0.7)');
         sidewalkGlow.addColorStop(1, 'rgba(30, 41, 59, 0.95)');
         ctx.fillStyle = sidewalkGlow;
-        ctx.fillRect(0, this.groundY - 50, this.width, 50);
+        ctx.fillRect(0, this.groundY - 45, this.width, 45);
 
-        // Ground
+        // Street Base
         ctx.fillStyle = '#090d16';
         ctx.fillRect(0, this.groundY, this.width, this.height - this.groundY);
+        
+        // Curbside neon line
         ctx.strokeStyle = '#22d3ee';
         ctx.lineWidth = 2.5;
         ctx.beginPath();
@@ -1380,14 +1303,14 @@
         ctx.lineTo(this.width, this.groundY);
         ctx.stroke();
 
-        // Street dashed lines
+        // Road dashed center line
         ctx.save();
         ctx.strokeStyle = 'rgba(250, 204, 21, 0.4)';
         ctx.setLineDash([15, 15]);
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(0, this.groundY + 28);
-        ctx.lineTo(this.width, this.groundY + 28);
+        ctx.moveTo(0, this.groundY + 16);
+        ctx.lineTo(this.width, this.groundY + 16);
         ctx.stroke();
         ctx.restore();
       }
@@ -1405,28 +1328,28 @@
           // Roof antenna
           ctx.beginPath();
           ctx.moveTo(b.x + b.width / 2, bTop);
-          ctx.lineTo(b.x + b.width / 2, bTop - 18);
+          ctx.lineTo(b.x + b.width / 2, bTop - 14);
           ctx.strokeStyle = '#64748b';
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 1.5;
           ctx.stroke();
 
           // Blinking beacon
           ctx.beginPath();
-          ctx.arc(b.x + b.width / 2, bTop - 18, 2.5, 0, Math.PI * 2);
+          ctx.arc(b.x + b.width / 2, bTop - 14, 2, 0, Math.PI * 2);
           ctx.fillStyle = (Date.now() % 1000 < 500) ? '#ef4444' : '#7f1d1d';
           ctx.fill();
 
           // Windows
           const cellW = (b.width - 12) / b.cols;
-          const cellH = (b.height - 48) / b.rows;
+          const cellH = (b.height - 36) / b.rows;
           let winIdx = 0;
 
           for (let r = 0; r < b.rows; r++) {
             for (let c = 0; c < b.cols; c++) {
               const wx = b.x + 6 + c * cellW + 2;
-              const wy = bTop + 14 + r * cellH + 2;
-              const wWidth = Math.max(4, cellW - 5);
-              const wHeight = Math.max(6, cellH - 6);
+              const wy = bTop + 10 + r * cellH + 2;
+              const wWidth = Math.max(3, cellW - 5);
+              const wHeight = Math.max(5, cellH - 6);
 
               if (b.windows[winIdx]) {
                 ctx.fillStyle = b.theme.litWindow;
@@ -1453,12 +1376,11 @@
           doorGrad.addColorStop(0, 'rgba(250, 204, 21, 0.3)');
           doorGrad.addColorStop(1, 'rgba(250, 204, 21, 0.05)');
           ctx.fillStyle = doorGrad;
-          ctx.fillRect(d.x + 3, d.y + 4, d.width - 6, d.height - 4);
+          ctx.fillRect(d.x + 2, d.y + 3, d.width - 4, d.height - 3);
         });
       }
     }
 
-    // Main Game Controller
     class GameController {
       constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -1483,6 +1405,8 @@
         this.resize();
 
         this.world = new StarfieldWorld(this.width, this.height);
+        this.world.resize(this.width, this.height, this.isTouchDevice);
+
         this.saucer = new FlyingSaucer(this.width, this.height, this.world.groundY);
 
         this.targetHumanCount = this.calculateHumanCount(this.width);
@@ -1497,9 +1421,11 @@
       detectDeviceType() {
         const hasTouch = ('ontouchstart' in window) || 
                          (navigator.maxTouchPoints > 0) || 
-                         (navigator.msMaxTouchPoints > 0);
+                         (navigator.msMaxTouchPoints > 0) ||
+                         (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
         const mobileAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        return hasTouch || mobileAgent;
+        const smallScreen = window.innerWidth <= 1024;
+        return hasTouch || mobileAgent || smallScreen;
       }
 
       setupDeviceUI() {
@@ -1517,9 +1443,9 @@
 
       calculateHumanCount(screenWidth) {
         if (screenWidth < 640) return 12;
-        if (screenWidth < 1024) return 20;
-        if (screenWidth < 1440) return 28;
-        return 34;
+        if (screenWidth < 1024) return 18;
+        if (screenWidth < 1440) return 24;
+        return 28;
       }
 
       resize() {
@@ -1531,12 +1457,14 @@
         this.isTouchDevice = this.detectDeviceType();
         this.setupDeviceUI();
 
-        if (this.world) this.world.resize(this.width, this.height, this.isTouchDevice);
+        if (this.world) {
+          this.world.resize(this.width, this.height, this.isTouchDevice);
+        }
         if (this.saucer && this.world) {
           this.saucer.updateBounds(this.width, this.height, this.world.groundY);
         }
 
-        if (this.humans) {
+        if (this.humans && this.world) {
           const newTargetCount = this.calculateHumanCount(this.width);
           if (this.targetHumanCount && newTargetCount !== this.targetHumanCount) {
             this.targetHumanCount = newTargetCount;
@@ -1549,16 +1477,14 @@
             }
           }
 
-          if (this.world) {
-            this.humans.forEach(h => {
-              h.worldWidth = this.width;
-              h.groundY = this.world.groundY;
-              if (h.state === 'WALKING') {
-                h.y = this.world.groundY;
-              }
-              if (h.x > this.width - 30) h.x = this.width - 30;
-            });
-          }
+          this.humans.forEach(h => {
+            h.worldWidth = this.width;
+            h.groundY = this.world.groundY;
+            if (h.state === 'WALKING') {
+              h.y = this.world.groundY;
+            }
+            if (h.x > this.width - 30) h.x = this.width - 30;
+          });
         }
       }
 
@@ -1589,16 +1515,16 @@
           if (Math.random() < 0.25) direction *= -1;
         }
 
-        const groundLevel = this.world ? this.world.groundY : this.height - 60;
+        const groundLevel = this.world ? this.world.groundY : this.height - 180;
         const newH = new Human(spawnX, groundLevel, this.width);
-        newH.vx = direction * (0.45 + Math.random() * 0.95);
+        newH.vx = direction * (0.4 + Math.random() * 0.9);
         this.humans.push(newH);
       }
 
       bindEvents() {
         window.addEventListener('resize', () => this.resize());
 
-        // Keyboard
+        // Keyboard Controls
         window.addEventListener('keydown', (e) => {
           if (this.state !== 'PLAYING') return;
           sound.init();
@@ -1662,23 +1588,31 @@
 
         this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-        // Mobile Controls
+        // Mobile Button Bindings
         const bindButton = (id, onDown, onUp) => {
           const el = document.getElementById(id);
           if (!el) return;
+
           const press = (ev) => {
-            ev.preventDefault();
+            if (ev.cancelable) ev.preventDefault();
             sound.init();
             onDown();
           };
+
           const release = (ev) => {
-            ev.preventDefault();
+            if (ev.cancelable) ev.preventDefault();
             onUp();
           };
-          el.addEventListener('touchstart', press);
-          el.addEventListener('touchend', release);
+
+          el.addEventListener('pointerdown', press);
+          el.addEventListener('pointerup', release);
+          el.addEventListener('pointercancel', release);
+          el.addEventListener('touchstart', press, { passive: false });
+          el.addEventListener('touchend', release, { passive: false });
+          el.addEventListener('touchcancel', release, { passive: false });
           el.addEventListener('mousedown', press);
           el.addEventListener('mouseup', release);
+          el.addEventListener('mouseleave', release);
         };
 
         bindButton('touch-left', () => this.inputs.left = true, () => this.inputs.left = false);
@@ -1731,7 +1665,7 @@
           });
         }
 
-        document.getElementById('btn-save-score').addEventListener('click', async () => {
+        document.getElementById('btn-save-score').addEventListener('click', () => {
           const rawName = document.getElementById('input-pilot-name').value;
           const rawCity = document.getElementById('input-pilot-city').value;
           const warn = document.getElementById('filter-warning');
@@ -1744,7 +1678,7 @@
             return;
           }
 
-          await saveHighScoreEntry(cleanName, cleanCity, this.score);
+          saveHighScoreEntry(cleanName, cleanCity, this.score);
           document.getElementById('high-score-form').classList.add('hidden');
           this.renderJailLeaderboard();
         });
@@ -1992,7 +1926,6 @@
       }
     }
 
-    // Launch Game
     window.onload = () => {
       window.gameInstance = new GameController();
     };
