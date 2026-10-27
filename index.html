@@ -74,8 +74,13 @@
       border: 2px solid #22d3ee;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.35), 0 0 12px rgba(6, 182, 212, 0.45);
       color: #ffffff;
+      transition: all 0.08s ease-in-out;
+      display: inline-flex;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-    .sci-btn-action-scan:active {
+    .sci-btn-action-scan:active, .sci-btn-action-scan.active {
       background: linear-gradient(180deg, #06b6d4 0%, #0891b2 60%, #0e7490 100%);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), inset 0 2px 6px rgba(0, 0, 0, 0.7), 0 0 18px rgba(34, 211, 238, 0.9);
       transform: scale(0.95) translateY(1px);
@@ -85,8 +90,13 @@
       border: 2px solid #a3e635;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.35), 0 0 12px rgba(163, 230, 53, 0.45);
       color: #ffffff;
+      transition: all 0.08s ease-in-out;
+      display: inline-flex;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-    .sci-btn-action-beam:active {
+    .sci-btn-action-beam:active, .sci-btn-action-beam.active {
       background: linear-gradient(180deg, #65a30d 0%, #4d7c0f 60%, #365314 100%);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), inset 0 2px 6px rgba(0, 0, 0, 0.7), 0 0 18px rgba(163, 230, 53, 0.9);
       transform: scale(0.95) translateY(1px);
@@ -221,7 +231,7 @@
   </div>
 
   <!-- Mobile Touch Controls: Docked Under the Street -->
-  <div id="mobile-touch-controls" class="relative w-full h-[138px] sm:h-[150px] shrink-0 z-30 flex justify-between items-center px-3 py-2 bg-slate-950/98 border-t-2 border-cyan-500/70 shadow-2xl shadow-cyan-950/90 pointer-events-auto">
+  <div id="mobile-touch-controls" class="relative w-full h-[142px] sm:h-[150px] shrink-0 z-30 flex justify-between items-center px-3 py-2 bg-slate-950/98 border-t-2 border-cyan-500/70 shadow-2xl shadow-cyan-950/90 pointer-events-auto">
     <!-- Left: D-Pad Directionals -->
     <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-900/90 rounded-2xl border border-cyan-500/40 shadow-inner">
       <div></div>
@@ -234,7 +244,7 @@
 
     <!-- Center: Mobile Mute Toggle Button -->
     <div class="flex flex-col items-center justify-center text-center px-1">
-      <button id="btn-mobile-sound" class="sci-btn px-2.5 py-2 sm:px-3 sm:py-2.5 rounded-2xl flex flex-col items-center justify-center gap-1 border border-cyan-500/50 shadow-lg min-w-[72px]">
+      <button id="btn-mobile-sound" class="sci-btn px-2.5 py-2 sm:px-3 sm:py-2.5 rounded-2xl flex flex-col items-center justify-center gap-1 border border-cyan-500/50 shadow-lg min-w-[76px]">
         <span id="mobile-sound-icon" class="text-xl sm:text-2xl leading-none">🔊</span>
         <span id="mobile-sound-text" class="text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-cyan-300">SOUND ON</span>
       </button>
@@ -262,8 +272,8 @@
       
       <div class="my-auto flex flex-col items-center">
         <h1 class="pixel-font text-cyan-400 text-lg sm:text-xl tracking-tight mb-4">INTERGALACTIC ABDUCTION</h1>
-        <p class="text-white text-base sm:text-lg font-bold tracking-wide leading-snug max-w-[260px] mx-auto">
-          Abduct as many humans as you safely can.
+        <p class="text-white text-base sm:text-lg font-bold tracking-wide leading-snug max-w-[280px] mx-auto">
+          Abduct as many humans as you safely can. Check their pass first!
         </p>
       </div>
 
@@ -383,9 +393,9 @@
 
   <!-- Firebase Modular Cloud Leaderboard Manager -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const defaultFallbackScores = [
       { name: 'ZORBLAX', city: 'ROSWELL', score: 18, timestamp: Date.now() - 3600000 },
@@ -411,11 +421,12 @@
         this.user = null;
         this.listeners = new Set();
         this.cacheByMonth = {};
-        this.unsubCurrent = null;
+        this.unsubByMonth = {};
         this.currentMonthKey = this.computeMonthKey(new Date());
+        this.appId = typeof __app_id !== 'undefined' ? __app_id : 'intergalactic-abduction';
 
         this.loadLocalBackup();
-        this.initFirebase();
+        this.initPromise = this.initFirebase();
       }
 
       computeMonthKey(dateObj) {
@@ -483,6 +494,7 @@
           this.auth = getAuth(app);
           this.db = getFirestore(app);
 
+          // Authenticate BEFORE any Firestore query or listener
           if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
             await signInWithCustomToken(this.auth, __initial_auth_token);
           } else {
@@ -492,20 +504,19 @@
 
           this.listenToMonth(this.currentMonthKey);
         } catch (err) {
-          console.warn("Storage operating in resilient offline/local mode:", err.message || err);
+          // Gracefully continue in local backup mode
         }
       }
 
-      listenToMonth(monthKey) {
-        if (!this.db || !this.user) return;
-        if (this.unsubCurrent && monthKey === this.currentMonthKey) {
-          return;
+      async listenToMonth(monthKey) {
+        if (this.initPromise) {
+          await this.initPromise;
         }
+        if (!this.db || !this.user) return;
+        if (this.unsubByMonth[monthKey]) return;
 
-        const currentAppId = typeof appId !== 'undefined' ? appId : 'intergalactic-abduction';
-        
         try {
-          const docRef = doc(this.db, 'artifacts', currentAppId, 'public', 'data', `leaderboard_${monthKey}`);
+          const docRef = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'leaderboards', monthKey);
 
           const unsub = onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
@@ -524,16 +535,10 @@
                 this.notifyListeners(monthKey);
               }
             }
-          }, (error) => {
-            console.warn(`Snapshot listener inactive for ${monthKey} (using local storage):`, error.message || error);
-          });
+          }, (error) => {});
 
-          if (monthKey === this.currentMonthKey) {
-            this.unsubCurrent = unsub;
-          }
-        } catch (e) {
-          console.warn("Could not attach listener, running in local persistence mode:", e);
-        }
+          this.unsubByMonth[monthKey] = unsub;
+        } catch (e) {}
       }
 
       notifyListeners(monthKey) {
@@ -549,6 +554,8 @@
       getScores(monthKey = this.currentMonthKey) {
         if (!this.cacheByMonth[monthKey] || this.cacheByMonth[monthKey].length === 0) {
           this.cacheByMonth[monthKey] = defaultFallbackScores.slice(0, 5);
+        }
+        if (!this.unsubByMonth[monthKey]) {
           this.listenToMonth(monthKey);
         }
         return this.cacheByMonth[monthKey].slice(0, 5);
@@ -573,6 +580,10 @@
           timestamp: Date.now()
         };
 
+        if (this.initPromise) {
+          await this.initPromise;
+        }
+
         if (!this.cacheByMonth[monthKey]) this.cacheByMonth[monthKey] = [];
         this.cacheByMonth[monthKey].push(entry);
         this.cacheByMonth[monthKey].sort((a, b) => b.score - a.score);
@@ -583,17 +594,29 @@
 
         if (this.db && this.user) {
           try {
-            const currentAppId = typeof appId !== 'undefined' ? appId : 'intergalactic-abduction';
-            const docRef = doc(this.db, 'artifacts', currentAppId, 'public', 'data', `leaderboard_${monthKey}`);
+            const docRef = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'leaderboards', monthKey);
             
+            try {
+              const freshSnap = await getDoc(docRef);
+              if (freshSnap.exists()) {
+                const cloudData = freshSnap.data();
+                if (cloudData && Array.isArray(cloudData.entries)) {
+                  const merged = [...cloudData.entries, entry];
+                  merged.sort((a, b) => b.score - a.score);
+                  this.cacheByMonth[monthKey] = merged.slice(0, 5);
+                }
+              }
+            } catch (mergeErr) {}
+
             await setDoc(docRef, {
               month: monthKey,
               updatedAt: Date.now(),
               entries: this.cacheByMonth[monthKey]
             }, { merge: true });
-          } catch (err) {
-            console.warn("Could not push score to remote cloud doc (saved locally):", err.message || err);
-          }
+
+            this.saveLocalBackup();
+            this.notifyListeners(monthKey);
+          } catch (err) {}
         }
       }
     }
@@ -604,12 +627,14 @@
     }
   </script>
 
-  <!-- Robust Web Audio Sound Engine -->
+  <!-- Sound Engine with Complete Hard Mute and WebKit Support -->
   <script>
     class SoundEngine {
       constructor() {
         this.ctx = null;
+        this.masterGain = null;
         this.enabled = true;
+        this.isMutedByUser = false;
         this.humOsc = null;
         this.humGain = null;
         this.carrier = null;
@@ -618,69 +643,92 @@
         this.tractorGain = null;
         this.lastScreamTime = 0;
         this.isUnlocked = false;
-        this.keepaliveNode = null;
+        // Require deliberate pointer repositioning after muting before unmute can be accepted
+        this.pcMuteArmed = true;
+        this.mobileMuteArmed = true;
       }
 
-      init() {
+      getAudioContext() {
         if (!this.ctx) {
           const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
           if (AudioCtxClass) {
             this.ctx = new AudioCtxClass();
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.setValueAtTime((this.enabled && !this.isMutedByUser) ? 1.0 : 0.0, this.ctx.currentTime);
+            this.masterGain.connect(this.ctx.destination);
           }
         }
+        return this.ctx;
+      }
 
-        if (this.ctx) {
-          if (this.ctx.state === 'suspended') {
-            this.ctx.resume().catch(() => {});
-          }
+      getMasterDestination() {
+        // Absolute Hard Gate: If muted by user or disabled, return NULL so no sound node can ever connect to hardware
+        if (this.isMutedByUser || !this.enabled) return null;
+        this.getAudioContext();
+        if (this.masterGain && this.ctx) {
+          this.masterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
+        }
+        return this.masterGain;
+      }
 
-          if (!this.isUnlocked && this.ctx.state !== 'closed') {
-            try {
-              const buffer = this.ctx.createBuffer(1, 1, 22050);
-              const source = this.ctx.createBufferSource();
-              source.buffer = buffer;
-              source.connect(this.ctx.destination);
+      unlock() {
+        // STRICT GATE: Never unlock, resume context, or start oscillators if user muted
+        if (this.isMutedByUser || !this.enabled) return;
+        const ctx = this.getAudioContext();
+        if (!ctx) return;
+
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+
+        if (!this.isUnlocked) {
+          try {
+            const buffer = ctx.createBuffer(1, 1, 22050);
+            const source = ctx.createBufferSource();
+            source.buffer = buffer;
+            const dest = this.getMasterDestination();
+            if (dest) {
+              source.connect(dest);
               source.start(0);
+            }
+            this.isUnlocked = true;
+          } catch (e) {}
+        }
 
-              const keepOsc = this.ctx.createOscillator();
-              const keepGain = this.ctx.createGain();
-              keepGain.gain.setValueAtTime(0.00001, this.ctx.currentTime);
-              keepOsc.connect(keepGain);
-              keepGain.connect(this.ctx.destination);
-              keepOsc.start();
-              this.keepaliveNode = keepOsc;
-
-              this.isUnlocked = true;
-            } catch (e) {}
-          }
-
-          if (this.enabled) {
-            this.startSaucerHum();
-          }
+        if (!this.humOsc && ctx.state === 'running') {
+          this.startSaucerHum();
         }
       }
 
       ensureActive() {
-        if (!this.ctx) {
-          this.init();
-        } else if (this.ctx.state === 'suspended') {
-          this.ctx.resume().catch(() => {});
+        if (this.isMutedByUser || !this.enabled) return false;
+        const ctx = this.getAudioContext();
+        if (!ctx) return false;
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
         }
+        return ctx.state === 'running';
       }
 
       startSaucerHum() {
-        if (!this.ctx || this.humOsc || !this.enabled) return;
+        if (this.isMutedByUser || !this.enabled) return;
+        const ctx = this.getAudioContext();
+        if (!ctx || this.humOsc) return;
+
         try {
-          if (this.ctx.state === 'suspended') {
-            this.ctx.resume().catch(() => {});
+          if (ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
           }
-          this.humOsc = this.ctx.createOscillator();
-          this.humGain = this.ctx.createGain();
+          const dest = this.getMasterDestination();
+          if (!dest) return;
+
+          this.humOsc = ctx.createOscillator();
+          this.humGain = ctx.createGain();
           this.humOsc.type = 'triangle';
-          this.humOsc.frequency.setValueAtTime(80, this.ctx.currentTime);
-          this.humGain.gain.setValueAtTime(0.025, this.ctx.currentTime);
+          this.humOsc.frequency.setValueAtTime(80, ctx.currentTime);
+          this.humGain.gain.setValueAtTime(0.025, ctx.currentTime);
           this.humOsc.connect(this.humGain);
-          this.humGain.connect(this.ctx.destination);
+          this.humGain.connect(dest);
           this.humOsc.start();
         } catch (e) {}
       }
@@ -697,99 +745,101 @@
       }
 
       updateSaucerHum(yFraction, speedFraction) {
-        if (!this.humOsc || !this.enabled || !this.ctx || this.ctx.state !== 'running') return;
+        if (this.isMutedByUser || !this.humOsc || !this.enabled || !this.ctx || this.ctx.state !== 'running') return;
         const targetFreq = 75 + (1 - yFraction) * 55 + speedFraction * 25;
         this.humOsc.frequency.setTargetAtTime(targetFreq, this.ctx.currentTime, 0.1);
       }
 
       playScannerBlip() {
-        if (!this.enabled) return;
-        this.ensureActive();
-        if (!this.ctx) return;
+        if (this.isMutedByUser || !this.enabled) return;
+        const dest = this.getMasterDestination();
+        if (!dest) return;
+        const ctx = this.getAudioContext();
+        if (!ctx) return;
+
         try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          const t = this.ctx.currentTime;
+          const t = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(880, t);
           osc.frequency.exponentialRampToValueAtTime(1760, t + 0.09);
-          gain.gain.setValueAtTime(0.08, t);
+          gain.gain.setValueAtTime(0.12, t);
           gain.gain.linearRampToValueAtTime(0.001, t + 0.11);
           osc.connect(gain);
-          gain.connect(this.ctx.destination);
+          gain.connect(dest);
           osc.start(t);
-          osc.stop(t + 0.11);
+          osc.stop(t + 0.12);
         } catch (e) {}
       }
 
       setTractorLoop(active) {
-        if (!this.enabled) {
-          if (this.carrier) this.setTractorLoop(false);
-          return;
-        }
-        this.ensureActive();
-        if (!this.ctx) return;
-        try {
-          if (active) {
-            if (!this.carrier) {
-              const t = this.ctx.currentTime;
-              this.carrier = this.ctx.createOscillator();
-              this.carrier.type = 'sawtooth';
-              this.carrier.frequency.setValueAtTime(180, t);
-
-              this.modulator = this.ctx.createOscillator();
-              this.modulator.type = 'sine';
-              this.modulator.frequency.setValueAtTime(16, t);
-
-              this.modGain = this.ctx.createGain();
-              this.modGain.gain.setValueAtTime(60, t);
-
-              this.modulator.connect(this.carrier.frequency);
-
-              this.tractorGain = this.ctx.createGain();
-              this.tractorGain.gain.setValueAtTime(0.01, t);
-              this.tractorGain.gain.linearRampToValueAtTime(0.08, t + 0.06);
-
-              this.carrier.connect(this.tractorGain);
-              this.tractorGain.connect(this.ctx.destination);
-
-              this.modulator.start();
-              this.carrier.start();
-            }
-          } else if (this.carrier) {
-            const t = this.ctx.currentTime;
-            this.tractorGain.gain.linearRampToValueAtTime(0.001, t + 0.06);
-            const oldCarrier = this.carrier;
-            const oldMod = this.modulator;
-            setTimeout(() => {
-              try {
-                oldCarrier.stop();
-                oldMod.stop();
-                oldCarrier.disconnect();
-                oldMod.disconnect();
-              } catch (e) {}
-            }, 70);
+        if (this.isMutedByUser || !this.enabled || !active) {
+          if (this.carrier) {
+            try {
+              this.carrier.stop();
+              this.modulator.stop();
+              this.carrier.disconnect();
+              this.modulator.disconnect();
+            } catch (e) {}
             this.carrier = null;
             this.modulator = null;
             this.modGain = null;
             this.tractorGain = null;
           }
+          return;
+        }
+
+        const dest = this.getMasterDestination();
+        if (!dest) return;
+        const ctx = this.getAudioContext();
+        if (!ctx) return;
+
+        try {
+          if (!this.carrier) {
+            const t = ctx.currentTime;
+            this.carrier = ctx.createOscillator();
+            this.carrier.type = 'sawtooth';
+            this.carrier.frequency.setValueAtTime(180, t);
+
+            this.modulator = ctx.createOscillator();
+            this.modulator.type = 'sine';
+            this.modulator.frequency.setValueAtTime(16, t);
+
+            this.modGain = ctx.createGain();
+            this.modGain.gain.setValueAtTime(60, t);
+
+            this.modulator.connect(this.carrier.frequency);
+
+            this.tractorGain = ctx.createGain();
+            this.tractorGain.gain.setValueAtTime(0.02, t);
+            this.tractorGain.gain.linearRampToValueAtTime(0.1, t + 0.06);
+
+            this.carrier.connect(this.tractorGain);
+            this.tractorGain.connect(dest);
+
+            this.modulator.start();
+            this.carrier.start();
+          }
         } catch (e) {}
       }
 
       playHumanDistress(heightFactor) {
-        if (!this.enabled) return;
-        this.ensureActive();
-        if (!this.ctx) return;
+        if (this.isMutedByUser || !this.enabled) return;
+        const dest = this.getMasterDestination();
+        if (!dest) return;
+        const ctx = this.getAudioContext();
+        if (!ctx) return;
+
         const now = performance.now();
         if (now - this.lastScreamTime < 280) return;
         this.lastScreamTime = now;
 
         try {
-          const t = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator();
-          const filter = this.ctx.createBiquadFilter();
-          const gain = this.ctx.createGain();
+          const t = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const filter = ctx.createBiquadFilter();
+          const gain = ctx.createGain();
 
           osc.type = 'sawtooth';
           const baseFreq = 420 + heightFactor * 360;
@@ -802,14 +852,14 @@
           filter.frequency.setValueAtTime(1150 + heightFactor * 450, t);
           filter.Q.setValueAtTime(3.8, t);
 
-          const vol = 0.08 + heightFactor * 0.05;
-          gain.gain.setValueAtTime(0.005, t);
+          const vol = 0.1 + heightFactor * 0.06;
+          gain.gain.setValueAtTime(0.01, t);
           gain.gain.linearRampToValueAtTime(vol, t + 0.04);
           gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
 
           osc.connect(filter);
           filter.connect(gain);
-          gain.connect(this.ctx.destination);
+          gain.connect(dest);
 
           osc.start(t);
           osc.stop(t + 0.31);
@@ -817,14 +867,17 @@
       }
 
       playReliefSigh() {
-        if (!this.enabled) return;
-        this.ensureActive();
-        if (!this.ctx) return;
+        if (this.isMutedByUser || !this.enabled) return;
+        const dest = this.getMasterDestination();
+        if (!dest) return;
+        const ctx = this.getAudioContext();
+        if (!ctx) return;
+
         try {
-          const t = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator();
-          const filter = this.ctx.createBiquadFilter();
-          const gain = this.ctx.createGain();
+          const t = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const filter = ctx.createBiquadFilter();
+          const gain = ctx.createGain();
 
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(260, t);
@@ -833,13 +886,13 @@
           filter.type = 'lowpass';
           filter.frequency.setValueAtTime(650, t);
 
-          gain.gain.setValueAtTime(0.001, t);
-          gain.gain.linearRampToValueAtTime(0.06, t + 0.06);
+          gain.gain.setValueAtTime(0.005, t);
+          gain.gain.linearRampToValueAtTime(0.08, t + 0.06);
           gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
 
           osc.connect(filter);
           filter.connect(gain);
-          gain.connect(this.ctx.destination);
+          gain.connect(dest);
 
           osc.start(t);
           osc.stop(t + 0.42);
@@ -847,21 +900,24 @@
       }
 
       playAbductionChime() {
-        if (!this.enabled) return;
-        this.ensureActive();
-        if (!this.ctx) return;
+        if (this.isMutedByUser || !this.enabled) return;
+        const dest = this.getMasterDestination();
+        if (!dest) return;
+        const ctx = this.getAudioContext();
+        if (!ctx) return;
+
         try {
           const freqs = [523.25, 659.25, 783.99, 1046.50];
           freqs.forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            const t = this.ctx.currentTime + idx * 0.055;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const t = ctx.currentTime + idx * 0.055;
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.1, t);
+            gain.gain.setValueAtTime(0.12, t);
             gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(dest);
             osc.start(t);
             osc.stop(t + 0.24);
           });
@@ -869,23 +925,26 @@
       }
 
       playJailAlarm() {
-        if (!this.enabled) return;
-        this.ensureActive();
-        if (!this.ctx) return;
+        if (this.isMutedByUser || !this.enabled) return;
+        const dest = this.getMasterDestination();
+        if (!dest) return;
+        const ctx = this.getAudioContext();
+        if (!ctx) return;
+
         try {
           this.setTractorLoop(false);
           for (let i = 0; i < 3; i++) {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            const t = this.ctx.currentTime + i * 0.32;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const t = ctx.currentTime + i * 0.32;
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(360, t);
             osc.frequency.linearRampToValueAtTime(900, t + 0.16);
             osc.frequency.linearRampToValueAtTime(360, t + 0.31);
-            gain.gain.setValueAtTime(0.18, t);
+            gain.gain.setValueAtTime(0.2, t);
             gain.gain.linearRampToValueAtTime(0.001, t + 0.31);
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(dest);
             osc.start(t);
             osc.stop(t + 0.32);
           }
@@ -910,24 +969,11 @@
       return clean.slice(0, 10);
     }
 
-    function loadHighScores() {
-      if (window.cloudLeaderboard) {
-        return window.cloudLeaderboard.getScores();
-      }
-      return [];
-    }
-
     function checkQualifiesHighScore(score) {
       if (window.cloudLeaderboard) {
         return window.cloudLeaderboard.checkQualifies(score);
       }
       return false;
-    }
-
-    function saveHighScoreEntry(name, city, score) {
-      if (window.cloudLeaderboard) {
-        window.cloudLeaderboard.submitScore(name, city, score);
-      }
     }
 
     const PROFESSIONS = [
@@ -1088,7 +1134,7 @@
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Ground ring around feet
+        // Ground targeting ring responds to card status
         if (isTargeted) {
           ctx.beginPath();
           ctx.ellipse(0, 0, 20, 7, 0, 0, Math.PI * 2);
@@ -1207,7 +1253,7 @@
           ctx.strokeRect(-5, bodyY, 10, 3);
         }
 
-        // Scanned Hologram Badge (Enlarged for readability on Mobile)
+        // Scanned Hologram Badge (Enlarged on mobile)
         if (this.isScanned) {
           const badgeY = bodyY - (isMobile ? 22 : 18);
           if (this.hasDoNotAbductCard) {
@@ -1215,7 +1261,7 @@
             ctx.shadowColor = '#ef4444';
             ctx.shadowBlur = 10;
             ctx.fillStyle = '#dc2626';
-            const bw = isMobile ? 96 : 70;
+            const bw = isMobile ? 96 : 72;
             const bh = isMobile ? 20 : 16;
             ctx.beginPath();
             ctx.roundRect(-bw / 2, badgeY - bh / 2, bw, bh, 5);
@@ -1234,7 +1280,7 @@
             ctx.shadowColor = '#10b981';
             ctx.shadowBlur = 10;
             ctx.fillStyle = '#059669';
-            const bw = isMobile ? 120 : 84;
+            const bw = isMobile ? 122 : 86;
             const bh = isMobile ? 20 : 16;
             ctx.beginPath();
             ctx.roundRect(-bw / 2, badgeY - bh / 2, bw, bh, 5);
@@ -1748,7 +1794,6 @@
       detectDeviceType() {
         const hasTouch = ('ontouchstart' in window) || 
                          (navigator.maxTouchPoints > 0) || 
-                         (navigator.msMaxTouchPoints > 0) ||
                          (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
         const mobileAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const smallScreen = window.innerWidth <= 1024;
@@ -1789,7 +1834,7 @@
         if (container) {
           const rect = container.getBoundingClientRect();
           this.width = Math.floor(rect.width || viewportW);
-          this.height = Math.floor(rect.height || (viewportH - (this.isTouchDevice ? 140 : 0)));
+          this.height = Math.floor(rect.height || (viewportH - (this.isTouchDevice ? 142 : 0)));
         } else {
           this.width = Math.floor(viewportW);
           this.height = Math.floor(viewportH);
@@ -1862,136 +1907,144 @@
         this.humans.push(newH);
       }
 
-      toggleSound() {
-        sound.enabled = !sound.enabled;
-        const soundIcon = document.getElementById('sound-icon');
-        const mobIcon = document.getElementById('mobile-sound-icon');
-        const mobText = document.getElementById('mobile-sound-text');
-
-        if (sound.enabled) {
-          if (soundIcon) soundIcon.textContent = '🔊';
-          if (mobIcon) mobIcon.textContent = '🔊';
-          if (mobText) {
-            mobText.textContent = 'SOUND ON';
-            mobText.className = 'text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-cyan-300';
-          }
-          sound.ensureActive();
-          sound.startSaucerHum();
-        } else {
-          if (soundIcon) soundIcon.textContent = '🔇';
-          if (mobIcon) mobIcon.textContent = '🔇';
-          if (mobText) {
-            mobText.textContent = 'MUTED';
-            mobText.className = 'text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-rose-400';
-          }
-          sound.stopSaucerHum();
-          sound.setTractorLoop(false);
-        }
-      }
-
       bindEvents() {
+        const unlockAudio = () => {
+          // Strictly reject unlocking if the user opted to mute
+          if (!sound.isMutedByUser && sound.enabled) {
+            sound.unlock();
+          }
+        };
+        window.addEventListener('touchstart', unlockAudio, { passive: true });
+        window.addEventListener('touchend', unlockAudio, { passive: true });
+        window.addEventListener('pointerdown', unlockAudio, { passive: true });
+        window.addEventListener('click', unlockAudio, { passive: true });
+
+        // Resize listeners
         window.addEventListener('resize', () => this.resize());
         if (window.visualViewport) {
           window.visualViewport.addEventListener('resize', () => this.resize());
         }
-        window.addEventListener('orientationchange', () => {
-          setTimeout(() => this.resize(), 150);
-        });
 
-        // Anti-Zooming Guardrails for iOS & Android
-        document.addEventListener('gesturestart', (e) => e.preventDefault());
-        document.addEventListener('gesturechange', (e) => e.preventDefault());
-        document.addEventListener('gestureend', (e) => e.preventDefault());
-
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', (e) => {
-          const now = performance.now();
-          if (now - lastTouchEnd <= 300) {
-            e.preventDefault();
-          }
-          lastTouchEnd = now;
-        }, { passive: false });
-
-        // Mobile Web Audio unlock routine
-        const unlockAudio = () => {
-          sound.init();
-          sound.ensureActive();
-        };
-        window.addEventListener('touchstart', unlockAudio, { passive: true });
-        window.addEventListener('pointerdown', unlockAudio, { passive: true });
-        window.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible' && sound.enabled) {
-            sound.ensureActive();
-          }
-        });
-
-        this.bindLeaderboardSync();
-
-        // Mobile Touch Button Listeners
-        const bindTouchBtn = (id, keyName) => {
-          const btn = document.getElementById(id);
-          if (!btn) return;
-          const startAction = (e) => {
-            if (e.cancelable) e.preventDefault();
-            sound.ensureActive();
-            this.inputs[keyName] = true;
-            if (keyName === 'tractor') sound.setTractorLoop(true);
-            if (keyName === 'scanner') sound.playScannerBlip();
-          };
-          const endAction = (e) => {
-            if (e.cancelable) e.preventDefault();
-            this.inputs[keyName] = false;
-            if (keyName === 'tractor') sound.setTractorLoop(false);
-          };
-
-          btn.addEventListener('touchstart', startAction, { passive: false });
-          btn.addEventListener('touchend', endAction, { passive: false });
-          btn.addEventListener('touchcancel', endAction, { passive: false });
-          btn.addEventListener('pointerdown', startAction);
-          btn.addEventListener('pointerup', endAction);
-          btn.addEventListener('pointercancel', endAction);
-          btn.addEventListener('pointerleave', endAction);
-        };
-
-        bindTouchBtn('touch-up', 'up');
-        bindTouchBtn('touch-down', 'down');
-        bindTouchBtn('touch-left', 'left');
-        bindTouchBtn('touch-right', 'right');
-        bindTouchBtn('touch-scan', 'scanner');
-        bindTouchBtn('touch-beam', 'tractor');
-
-        // Center Mobile Sound Mute Button
-        const btnMobSound = document.getElementById('btn-mobile-sound');
-        if (btnMobSound) {
-          btnMobSound.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggleSound();
+        // Toggle PC Controls collapsible card
+        const btnToggleControls = document.getElementById('btn-toggle-controls');
+        const controlsBody = document.getElementById('controls-body');
+        if (btnToggleControls && controlsBody) {
+          btnToggleControls.addEventListener('click', () => {
+            const isHidden = controlsBody.classList.toggle('hidden');
+            btnToggleControls.textContent = isHidden ? 'Show ▼' : 'Hide ▲';
           });
         }
 
-        // Top Header Sound Button
+        // Sound Toggle Buttons (PC and Mobile)
         const btnSound = document.getElementById('btn-sound');
-        if (btnSound) {
-          btnSound.addEventListener('click', (e) => {
-            e.preventDefault();
+        const btnMobileSound = document.getElementById('btn-mobile-sound');
+
+        const registerMuteButtonWithRepositionGate = (btnElem, isMobileKey) => {
+          if (!btnElem) return;
+
+          // When cursor leaves button hit area, re-arm the button
+          btnElem.addEventListener('pointerleave', () => {
+            if (isMobileKey) {
+              sound.mobileMuteArmed = true;
+            } else {
+              sound.pcMuteArmed = true;
+            }
+          });
+
+          // Touch cancellation / lift outside
+          btnElem.addEventListener('touchcancel', () => {
+            if (isMobileKey) {
+              sound.mobileMuteArmed = true;
+            } else {
+              sound.pcMuteArmed = true;
+            }
+          });
+
+          btnElem.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            const isArmed = isMobileKey ? sound.mobileMuteArmed : sound.pcMuteArmed;
+
+            // If user is currently unmuting, require that they have repositioned / re-entered the button space
+            if (sound.isMutedByUser && !isArmed) {
+              // Disregard stationary clicks that haven't cleared the location
+              return;
+            }
+
+            // Perform the toggle
             this.toggleSound();
+
+            // Clear location of the click: blur focus and disarm until pointer leaves
+            btnElem.blur();
+            if (sound.isMutedByUser) {
+              // Just muted: require moving off the button before unmuting can be accepted
+              if (isMobileKey) {
+                sound.mobileMuteArmed = false;
+              } else {
+                sound.pcMuteArmed = false;
+              }
+            } else {
+              // Just unmuted: keep re-armed
+              if (isMobileKey) {
+                sound.mobileMuteArmed = true;
+              } else {
+                sound.pcMuteArmed = true;
+              }
+            }
+          });
+        };
+
+        registerMuteButtonWithRepositionGate(btnSound, false);
+        registerMuteButtonWithRepositionGate(btnMobileSound, true);
+
+        // Start Game Button
+        const btnStartGame = document.getElementById('btn-start-game');
+        if (btnStartGame) {
+          btnStartGame.addEventListener('click', () => {
+            if (!sound.isMutedByUser && sound.enabled) sound.unlock();
+            const startModal = document.getElementById('modal-start');
+            if (startModal) startModal.classList.add('hidden');
+            this.state = 'PLAYING';
+            this.score = 0;
+            this.updateHUD();
           });
         }
 
-        // Keyboard Controls
+        // Bail / Restart Button
+        const btnRestart = document.getElementById('btn-restart');
+        if (btnRestart) {
+          btnRestart.addEventListener('click', () => {
+            if (!sound.isMutedByUser && sound.enabled) sound.unlock();
+            const jailModal = document.getElementById('modal-jail');
+            if (jailModal) jailModal.classList.add('hidden');
+            this.score = 0;
+            this.initHumans(this.targetHumanCount);
+            this.saucer.x = this.width / 2;
+            this.saucer.y = (this.saucer.minY + this.saucer.maxY) / 2;
+            this.state = 'PLAYING';
+            this.updateHUD();
+          });
+        }
+
+        // Keyboard Controls (PC)
         window.addEventListener('keydown', (e) => {
-          sound.ensureActive();
+          if (this.state !== 'PLAYING') return;
           const k = e.key.toLowerCase();
           if (k === 'arrowleft' || k === 'a') this.inputs.left = true;
           if (k === 'arrowright' || k === 'd') this.inputs.right = true;
           if (k === 'arrowup' || k === 'w') this.inputs.up = true;
           if (k === 'arrowdown' || k === 's') this.inputs.down = true;
+
           if (k === ' ' || k === 'q') {
-            if (!this.inputs.scanner) sound.playScannerBlip();
+            if (!this.inputs.scanner && !sound.isMutedByUser && sound.enabled) {
+              sound.playScannerBlip();
+            }
             this.inputs.scanner = true;
           }
           if (k === 'e') {
-            if (!this.inputs.tractor) sound.setTractorLoop(true);
+            if (!this.inputs.tractor && !sound.isMutedByUser && sound.enabled) {
+              sound.setTractorLoop(true);
+            }
             this.inputs.tractor = true;
           }
         });
@@ -2002,6 +2055,7 @@
           if (k === 'arrowright' || k === 'd') this.inputs.right = false;
           if (k === 'arrowup' || k === 'w') this.inputs.up = false;
           if (k === 'arrowdown' || k === 's') this.inputs.down = false;
+
           if (k === ' ' || k === 'q') this.inputs.scanner = false;
           if (k === 'e') {
             this.inputs.tractor = false;
@@ -2011,13 +2065,13 @@
 
         // Mouse Controls on Canvas
         this.canvas.addEventListener('mousedown', (e) => {
-          sound.ensureActive();
-          if (e.button === 0) {
+          if (this.state !== 'PLAYING') return;
+          if (e.button === 0) { // Left Click = Tractor Beam
             this.inputs.tractor = true;
-            sound.setTractorLoop(true);
-          } else if (e.button === 2) {
+            if (!sound.isMutedByUser && sound.enabled) sound.setTractorLoop(true);
+          } else if (e.button === 2) { // Right Click = Scanner
             this.inputs.scanner = true;
-            sound.playScannerBlip();
+            if (!sound.isMutedByUser && sound.enabled) sound.playScannerBlip();
           }
         });
 
@@ -2032,189 +2086,65 @@
 
         this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-        // UI Modals
-        document.getElementById('btn-start-game').addEventListener('click', () => {
-          sound.init();
-          sound.ensureActive();
-          document.getElementById('modal-start').classList.add('hidden');
-          this.state = 'PLAYING';
-          this.updateHUD();
-        });
-
-        document.getElementById('btn-restart').addEventListener('click', () => {
-          this.restart();
-        });
-
-        // Controls toggle button (Desktop)
-        const btnToggleControls = document.getElementById('btn-toggle-controls');
-        if (btnToggleControls) {
-          btnToggleControls.addEventListener('click', () => {
-            const body = document.getElementById('controls-body');
-            if (body) {
-              const isHidden = body.classList.contains('hidden');
-              body.classList.toggle('hidden');
-              btnToggleControls.textContent = isHidden ? 'Hide ▲' : 'Show ▼';
+        // Mobile Touch Button Listeners
+        const setupTouchBtn = (elemId, onPress, onRelease) => {
+          const el = document.getElementById(elemId);
+          if (!el) return;
+          const start = (e) => {
+            if (e.cancelable) e.preventDefault();
+            // NEVER unlock audio from game control taps if user muted
+            if (!sound.isMutedByUser && sound.enabled) {
+              sound.unlock();
             }
-          });
-        }
+            el.classList.add('active');
+            onPress();
+          };
+          const end = (e) => {
+            if (e.cancelable) e.preventDefault();
+            el.classList.remove('active');
+            onRelease();
+          };
+          el.addEventListener('pointerdown', start);
+          el.addEventListener('pointerup', end);
+          el.addEventListener('pointercancel', end);
+          el.addEventListener('pointerleave', end);
+        };
+
+        setupTouchBtn('touch-left', () => this.inputs.left = true, () => this.inputs.left = false);
+        setupTouchBtn('touch-right', () => this.inputs.right = true, () => this.inputs.right = false);
+        setupTouchBtn('touch-up', () => this.inputs.up = true, () => this.inputs.up = false);
+        setupTouchBtn('touch-down', () => this.inputs.down = true, () => this.inputs.down = false);
+
+        setupTouchBtn('touch-scan', () => {
+          this.inputs.scanner = true;
+          if (!sound.isMutedByUser && sound.enabled) sound.playScannerBlip();
+        }, () => {
+          this.inputs.scanner = false;
+        });
+
+        setupTouchBtn('touch-beam', () => {
+          this.inputs.tractor = true;
+          if (!sound.isMutedByUser && sound.enabled) sound.setTractorLoop(true);
+        }, () => {
+          this.inputs.tractor = false;
+          sound.setTractorLoop(false);
+        });
+
+        this.bindLeaderboardSync();
       }
 
       bindLeaderboardSync() {
-        const btnLeaderboard = document.getElementById('btn-leaderboard');
-        if (btnLeaderboard) {
-          btnLeaderboard.addEventListener('click', () => this.openLeaderboard());
-        }
-
-        const btnClose = document.getElementById('btn-close-leaderboard');
-        if (btnClose) {
-          btnClose.addEventListener('click', () => {
-            document.getElementById('modal-leaderboard').classList.add('hidden');
-          });
-        }
-        const btnDismiss = document.getElementById('btn-dismiss-leaderboard');
-        if (btnDismiss) {
-          btnDismiss.addEventListener('click', () => {
-            document.getElementById('modal-leaderboard').classList.add('hidden');
-          });
-        }
-
+        const modalLeaderboard = document.getElementById('modal-leaderboard');
+        const btnOpenLeaderboard = document.getElementById('btn-leaderboard');
+        const btnCloseLeaderboard = document.getElementById('btn-close-leaderboard');
+        const btnDismissLeaderboard = document.getElementById('btn-dismiss-leaderboard');
         const monthSelect = document.getElementById('leaderboard-month-select');
-        if (monthSelect) {
-          monthSelect.addEventListener('change', (e) => {
-            this.renderLeaderboardTable(e.target.value);
-          });
-        }
 
-        const btnSave = document.getElementById('btn-save-score');
-        if (btnSave) {
-          btnSave.addEventListener('click', async () => {
-            const nameInput = document.getElementById('input-pilot-name');
-            const cityInput = document.getElementById('input-pilot-city');
-            const warnEl = document.getElementById('filter-warning');
-            const rawName = nameInput ? nameInput.value : '';
-            const rawCity = cityInput ? cityInput.value : '';
-
-            const sanitizedName = sanitizeInput(rawName);
-            const sanitizedCity = sanitizeInput(rawCity);
-
-            if (!sanitizedName || !sanitizedCity) {
-              if (warnEl) warnEl.classList.remove('hidden');
-              return;
-            }
-            if (warnEl) warnEl.classList.add('hidden');
-
-            saveHighScoreEntry(sanitizedName, sanitizedCity, this.score);
-            const form = document.getElementById('high-score-form');
-            if (form) form.classList.add('hidden');
-
-            this.updateHUD();
-            this.renderJailLeaderboard();
-          });
-        }
-
-        if (window.cloudLeaderboard) {
-          window.cloudLeaderboard.onUpdate(() => {
-            this.updateHUD();
-            const jailModal = document.getElementById('modal-jail');
-            if (jailModal && !jailModal.classList.contains('hidden')) {
-              this.renderJailLeaderboard();
-            }
-            const lbModal = document.getElementById('modal-leaderboard');
-            if (lbModal && !lbModal.classList.contains('hidden')) {
-              const activeMonth = monthSelect ? monthSelect.value : window.cloudLeaderboard.currentMonthKey;
-              this.renderLeaderboardTable(activeMonth);
-            }
-          });
-        }
-      }
-
-      restart() {
-        document.getElementById('modal-jail').classList.add('hidden');
-        document.getElementById('high-score-form').classList.add('hidden');
-        this.score = 0;
-        this.inputs.tractor = false;
-        this.inputs.scanner = false;
-        sound.setTractorLoop(false);
-        this.saucer.x = this.width / 2;
-        this.saucer.y = (this.saucer.minY + this.saucer.maxY) / 2;
-        this.targetHumanCount = this.calculateHumanCount(this.width);
-        this.initHumans(this.targetHumanCount);
-        this.updateHUD();
-        this.state = 'PLAYING';
-      }
-
-      triggerJail(victim) {
-        this.state = 'JAIL';
-        this.inputs.tractor = false;
-        this.inputs.scanner = false;
-        sound.setTractorLoop(false);
-        sound.playJailAlarm();
-
-        const victimEl = document.getElementById('jail-victim');
-        if (victimEl) {
-          victimEl.textContent = `${victim.name} (${victim.profession})`;
-        }
-
-        const finalScoreEl = document.getElementById('jail-final-score');
-        if (finalScoreEl) {
-          finalScoreEl.textContent = String(this.score || 0);
-        }
-
-        this.renderJailLeaderboard();
-
-        const formEl = document.getElementById('high-score-form');
-        const warnEl = document.getElementById('filter-warning');
-        if (warnEl) warnEl.classList.add('hidden');
-
-        if (formEl) {
-          if (checkQualifiesHighScore(this.score)) {
-            formEl.classList.remove('hidden');
-            const nameInput = document.getElementById('input-pilot-name');
-            if (nameInput) {
-              nameInput.value = '';
-              setTimeout(() => nameInput.focus(), 100);
-            }
-          } else {
-            formEl.classList.add('hidden');
-          }
-        }
-
-        const modalJail = document.getElementById('modal-jail');
-        if (modalJail) {
-          modalJail.classList.remove('hidden');
-        }
-      }
-
-      renderJailLeaderboard() {
-        const records = loadHighScores();
-        const tbody = document.getElementById('jail-leaderboard-body');
-        const label = document.getElementById('jail-leaderboard-month-label');
-        if (label && window.cloudLeaderboard) {
-          label.textContent = `${window.cloudLeaderboard.formatMonthLabel(window.cloudLeaderboard.currentMonthKey)} Records`;
-        }
-        if (!tbody) return;
-        tbody.innerHTML = '';
-
-        records.slice(0, 5).forEach((rec, idx) => {
-          const tr = document.createElement('tr');
-          const isTop = idx === 0;
-          tr.className = isTop ? 'text-yellow-400 font-bold bg-yellow-950/20' : 'text-slate-300';
-          tr.innerHTML = `
-            <td class="py-0.5 px-1 text-cyan-400">${idx + 1}</td>
-            <td class="py-0.5 px-1 font-bold">${rec.name.slice(0, 10)}</td>
-            <td class="py-0.5 px-1 text-slate-400">${rec.city.slice(0, 10)}</td>
-            <td class="py-0.5 px-1 text-right pixel-font text-yellow-300">${rec.score}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      openLeaderboard() {
-        const monthSelect = document.getElementById('leaderboard-month-select');
-        if (monthSelect && window.cloudLeaderboard) {
-          const available = window.cloudLeaderboard.getAvailableMonths();
+        const populateMonthSelect = () => {
+          if (!monthSelect || !window.cloudLeaderboard) return;
           monthSelect.innerHTML = '';
-          available.forEach(mKey => {
+          const months = window.cloudLeaderboard.getAvailableMonths();
+          months.forEach(mKey => {
             const opt = document.createElement('option');
             opt.value = mKey;
             opt.textContent = window.cloudLeaderboard.formatMonthLabel(mKey);
@@ -2223,146 +2153,280 @@
             }
             monthSelect.appendChild(opt);
           });
+        };
+
+        const renderLeaderboardRows = (tbodyId, scores) => {
+          const tbody = document.getElementById(tbodyId);
+          if (!tbody) return;
+          tbody.innerHTML = '';
+          if (!scores || scores.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-2 text-slate-500">No records found.</td></tr>';
+            return;
+          }
+          scores.forEach((item, idx) => {
+            const tr = document.createElement('tr');
+            tr.className = idx === 0 ? 'text-yellow-400 font-bold' : (idx === 1 ? 'text-slate-200' : (idx === 2 ? 'text-amber-500' : 'text-slate-400'));
+            tr.innerHTML = `
+              <td class="py-1 px-2">${idx + 1}</td>
+              <td class="py-1 px-2">${item.name || 'PILOT'}</td>
+              <td class="py-1 px-2">${item.city || 'EARTH'}</td>
+              <td class="py-1 px-2 text-right">${item.score}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        };
+
+        const showLeaderboard = (monthKey) => {
+          populateMonthSelect();
+          const targetMonth = monthKey || (monthSelect ? monthSelect.value : (window.cloudLeaderboard ? window.cloudLeaderboard.currentMonthKey : null));
+          const scores = window.cloudLeaderboard ? window.cloudLeaderboard.getScores(targetMonth) : [];
+          renderLeaderboardRows('leaderboard-body', scores);
+          if (modalLeaderboard) modalLeaderboard.classList.remove('hidden');
+        };
+
+        if (btnOpenLeaderboard) btnOpenLeaderboard.addEventListener('click', () => showLeaderboard());
+        if (btnCloseLeaderboard) btnCloseLeaderboard.addEventListener('click', () => modalLeaderboard.classList.add('hidden'));
+        if (btnDismissLeaderboard) btnDismissLeaderboard.addEventListener('click', () => modalLeaderboard.classList.add('hidden'));
+        if (monthSelect) {
+          monthSelect.addEventListener('change', (e) => {
+            const scores = window.cloudLeaderboard ? window.cloudLeaderboard.getScores(e.target.value) : [];
+            renderLeaderboardRows('leaderboard-body', scores);
+          });
         }
 
-        const activeMonth = monthSelect ? monthSelect.value : (window.cloudLeaderboard ? window.cloudLeaderboard.currentMonthKey : '');
-        this.renderLeaderboardTable(activeMonth);
-        document.getElementById('modal-leaderboard').classList.remove('hidden');
+        // High Score Submission inside Jail Modal
+        const btnSaveScore = document.getElementById('btn-save-score');
+        const inputName = document.getElementById('input-pilot-name');
+        const inputCity = document.getElementById('input-pilot-city');
+        const filterWarning = document.getElementById('filter-warning');
+        const highScoreForm = document.getElementById('high-score-form');
+
+        if (btnSaveScore) {
+          btnSaveScore.addEventListener('click', async () => {
+            const nameVal = sanitizeInput(inputName ? inputName.value : '');
+            const cityVal = sanitizeInput(inputCity ? inputCity.value : '');
+            if (!nameVal || !cityVal) {
+              if (filterWarning) filterWarning.classList.remove('hidden');
+              return;
+            }
+            if (filterWarning) filterWarning.classList.add('hidden');
+            if (window.cloudLeaderboard) {
+              await window.cloudLeaderboard.submitScore(nameVal, cityVal, this.score);
+            }
+            if (highScoreForm) highScoreForm.classList.add('hidden');
+            this.renderJailLeaderboard();
+            this.updateHUD();
+          });
+        }
+
+        if (window.cloudLeaderboard) {
+          window.cloudLeaderboard.onUpdate(() => {
+            this.updateHUD();
+            this.renderJailLeaderboard();
+            if (modalLeaderboard && !modalLeaderboard.classList.contains('hidden')) {
+              const currentSel = monthSelect ? monthSelect.value : window.cloudLeaderboard.currentMonthKey;
+              const scores = window.cloudLeaderboard.getScores(currentSel);
+              renderLeaderboardRows('leaderboard-body', scores);
+            }
+          });
+        }
       }
 
-      renderLeaderboardTable(monthKey) {
-        if (!window.cloudLeaderboard) return;
-        const records = window.cloudLeaderboard.getScores(monthKey);
-        const tbody = document.getElementById('leaderboard-body');
-        if (!tbody) return;
+      renderJailLeaderboard() {
+        const tbody = document.getElementById('jail-leaderboard-body');
+        const label = document.getElementById('jail-leaderboard-month-label');
+        if (!tbody || !window.cloudLeaderboard) return;
+        if (label) {
+          label.textContent = `${window.cloudLeaderboard.formatMonthLabel(window.cloudLeaderboard.currentMonthKey)} Top Records`;
+        }
+        const scores = window.cloudLeaderboard.getScores(window.cloudLeaderboard.currentMonthKey);
         tbody.innerHTML = '';
-
-        records.forEach((rec, idx) => {
+        scores.forEach((item, idx) => {
           const tr = document.createElement('tr');
-          const isTop = idx === 0;
-          tr.className = isTop ? 'text-yellow-400 font-bold bg-yellow-950/20' : 'text-slate-300';
+          tr.className = idx === 0 ? 'text-yellow-400 font-bold' : (idx === 1 ? 'text-slate-200' : 'text-slate-400');
           tr.innerHTML = `
-            <td class="py-1.5 px-2 text-cyan-400">${idx + 1}</td>
-            <td class="py-1.5 px-2 font-bold">${rec.name.slice(0, 10)}</td>
-            <td class="py-1.5 px-2 text-slate-400">${rec.city.slice(0, 10)}</td>
-            <td class="py-1.5 px-2 text-right pixel-font text-yellow-300">${rec.score}</td>
+            <td class="py-0.5 px-1">${idx + 1}</td>
+            <td class="py-0.5 px-1">${item.name || 'PILOT'}</td>
+            <td class="py-0.5 px-1">${item.city || 'EARTH'}</td>
+            <td class="py-0.5 px-1 text-right">${item.score}</td>
           `;
           tbody.appendChild(tr);
         });
       }
 
-      updateHUD() {
-        const records = loadHighScores();
-        const top = records && records.length > 0 ? records[0].score : 0;
-        const currentStr = String(this.score || 0).padStart(3, '0');
-        const topStr = String(top || 0).padStart(3, '0');
+      triggerJail(victim) {
+        this.state = 'JAIL';
+        this.inputs.tractor = false;
+        sound.setTractorLoop(false);
+        sound.playJailAlarm();
 
-        const el = document.getElementById('hud-score');
-        if (el) el.textContent = currentStr;
-        
-        const topEl = document.getElementById('hud-top-score');
-        if (topEl) topEl.textContent = topStr;
-        
-        const mobTopEl = document.getElementById('hud-mobile-top-score');
-        if (mobTopEl) mobTopEl.textContent = topStr;
+        const jailModal = document.getElementById('modal-jail');
+        const jailVictim = document.getElementById('jail-victim');
+        const jailFinalScore = document.getElementById('jail-final-score');
+        const highScoreForm = document.getElementById('high-score-form');
+
+        if (jailVictim) jailVictim.textContent = `${victim.name} (${victim.profession})`;
+        if (jailFinalScore) jailFinalScore.textContent = this.score;
+
+        const qualifies = checkQualifiesHighScore(this.score);
+        if (highScoreForm) {
+          if (qualifies) {
+            highScoreForm.classList.remove('hidden');
+          } else {
+            highScoreForm.classList.add('hidden');
+          }
+        }
+
+        this.renderJailLeaderboard();
+        if (jailModal) jailModal.classList.remove('hidden');
+      }
+
+      updateHUD() {
+        const hudScore = document.getElementById('hud-score');
+        const hudTop = document.getElementById('hud-top-score');
+        const hudMobileTop = document.getElementById('hud-mobile-top-score');
+
+        const pad = (n) => String(Math.max(0, n)).padStart(3, '0');
+
+        if (hudScore) hudScore.textContent = pad(this.score);
+
+        let topScore = 0;
+        if (window.cloudLeaderboard) {
+          const scores = window.cloudLeaderboard.getScores();
+          if (scores.length > 0 && typeof scores[0].score === 'number') {
+            topScore = scores[0].score;
+          }
+        }
+        if (hudTop) hudTop.textContent = pad(topScore);
+        if (hudMobileTop) hudMobileTop.textContent = pad(topScore);
       }
 
       update(dt) {
         if (this.state !== 'PLAYING') return;
 
         this.saucer.update(this.inputs);
-        sound.updateSaucerHum(
-          this.saucer.y / this.world.groundY,
-          Math.abs(this.saucer.vx) / 6
-        );
+
+        const yFrac = (this.saucer.y - this.saucer.minY) / (this.saucer.maxY - this.saucer.minY || 1);
+        const spdFrac = Math.hypot(this.saucer.vx, this.saucer.vy) / this.saucer.speed;
+        sound.updateSaucerHum(yFrac, spdFrac);
 
         const cone = this.saucer.getBeamCone();
+        const beamTolerance = 22;
 
-        let candidate = null;
-        let shortestDist = 9999;
+        let foundTarget = null;
+        let bestDist = Infinity;
 
         this.humans.forEach(h => {
-          const dy = h.y - this.saucer.y;
-          if (dy > 0) {
-            const coneWidthAtY = 22 + (dy / (this.world.groundY - this.saucer.y)) * (cone.bottomRightX - this.saucer.x);
-            const dist = Math.abs(h.x - this.saucer.x);
-            if (dist < coneWidthAtY && dist < shortestDist) {
-              shortestDist = dist;
-              candidate = h;
-            }
+          const dx = Math.abs(h.x - this.saucer.x);
+          const maxSpreadAtGround = (cone.bottomRightX - this.saucer.x);
+          if (dx < maxSpreadAtGround + beamTolerance && dx < bestDist) {
+            bestDist = dx;
+            foundTarget = h;
           }
         });
 
-        this.targetedHuman = candidate;
+        this.targetedHuman = foundTarget;
 
-        // Scanner Logic
-        if (this.inputs.scanner && this.targetedHuman) {
-          this.targetedHuman.isScanned = true;
+        // Scanning mechanics
+        if (this.saucer.scannerActive && this.targetedHuman) {
+          if (!this.targetedHuman.isScanned) {
+            this.targetedHuman.isScanned = true;
+          }
           this.showScannerHUD(this.targetedHuman);
-        } else if (!this.inputs.scanner) {
+        } else {
           this.hideScannerHUD();
         }
 
-        // Tractor Beam Logic (Sole Target Mandate)
-        if (this.inputs.tractor) {
-          const currentSoleTarget = this.targetedHuman;
+        // Tractor Beam Mechanics
+        if (this.saucer.tractorActive && this.targetedHuman) {
+          const h = this.targetedHuman;
+          h.state = 'LIFTING';
 
-          this.humans.forEach(h => {
-            if (h !== currentSoleTarget && h.state === 'LIFTING') {
-              h.state = 'FALLING';
-            }
-          });
+          const liftSpeed = 3.6;
+          h.y -= liftSpeed;
+          h.x += (this.saucer.x - h.x) * 0.15;
 
-          if (currentSoleTarget) {
-            currentSoleTarget.state = 'LIFTING';
-            currentSoleTarget.x += (this.saucer.x - currentSoleTarget.x) * 0.16;
-            currentSoleTarget.y -= 3.6;
+          const liftHeightFraction = Math.max(0, Math.min(1, (h.groundY - h.y) / (h.groundY - this.saucer.y)));
+          sound.playHumanDistress(liftHeightFraction);
 
-            const totalDist = this.world.groundY - this.saucer.y;
-            const liftedDist = this.world.groundY - currentSoleTarget.y;
-            const fraction = Math.max(0, Math.min(1, liftedDist / totalDist));
+          if (h.y <= this.saucer.y + 14) {
+            if (h.hasDoNotAbductCard) {
+              this.triggerJail(h);
+              return;
+            } else {
+              sound.playAbductionChime();
+              this.score++;
+              this.updateHUD();
 
-            currentSoleTarget.triggerDistress();
-            sound.playHumanDistress(fraction);
+              registry.release(h.name);
+              const idx = this.humans.indexOf(h);
+              if (idx !== -1) this.humans.splice(idx, 1);
+              this.targetedHuman = null;
 
-            if (currentSoleTarget.y <= this.saucer.y + 16) {
-              if (currentSoleTarget.hasDoNotAbductCard) {
-                this.triggerJail(currentSoleTarget);
-                return;
-              } else {
-                this.score += 1;
-                sound.playAbductionChime();
-                this.updateHUD();
-
-                registry.release(currentSoleTarget.name);
-                this.humans = this.humans.filter(h => h !== currentSoleTarget);
-                this.targetedHuman = null;
-
-                this.spawnNewHuman();
-              }
+              this.spawnNewHuman(false);
             }
           }
-        } else {
-          this.humans.forEach(h => {
-            if (h.state === 'LIFTING') {
-              h.state = 'FALLING';
-            }
-          });
         }
 
-        // Human walk updates
+        // Release beam: humans safely parachute down
+        this.humans.forEach(h => {
+          if (h.state === 'LIFTING' && (!this.saucer.tractorActive || h !== this.targetedHuman)) {
+            h.state = 'FALLING';
+            h.fallSpeed = 0.5;
+            h.triggerRelief();
+          }
+          h.update(dt);
+        });
+
         for (let i = this.humans.length - 1; i >= 0; i--) {
           const h = this.humans[i];
-          h.update(dt);
-
-          if (h.isOffscreen && h.state !== 'LIFTING') {
+          if (h.isOffscreen) {
             registry.release(h.name);
             this.humans.splice(i, 1);
-            if (this.targetedHuman === h) {
-              this.targetedHuman = null;
-              this.hideScannerHUD();
-            }
             this.spawnNewHuman(false);
+          }
+        }
+      }
+
+      toggleSound() {
+        // Toggle the explicit user mute state
+        sound.isMutedByUser = !sound.isMutedByUser;
+        sound.enabled = !sound.isMutedByUser;
+
+        const soundIcon = document.getElementById('sound-icon');
+        const mobIcon = document.getElementById('mobile-sound-icon');
+        const mobText = document.getElementById('mobile-sound-text');
+
+        if (!sound.isMutedByUser) {
+          // USER EXPLICITLY UNMUTED
+          if (soundIcon) soundIcon.textContent = '🔊';
+          if (mobIcon) mobIcon.textContent = '🔊';
+          if (mobText) {
+            mobText.textContent = 'SOUND ON';
+            mobText.className = 'text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-cyan-300';
+          }
+          if (sound.ctx && sound.ctx.state === 'suspended') {
+            sound.ctx.resume().catch(() => {});
+          }
+          if (sound.masterGain && sound.ctx) {
+            sound.masterGain.gain.setValueAtTime(1.0, sound.ctx.currentTime);
+          }
+          sound.startSaucerHum();
+        } else {
+          // USER EXPLICITLY MUTED
+          if (soundIcon) soundIcon.textContent = '🔇';
+          if (mobIcon) mobIcon.textContent = '🔇';
+          if (mobText) {
+            mobText.textContent = 'MUTED';
+            mobText.className = 'text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-rose-400';
+          }
+          if (sound.masterGain && sound.ctx) {
+            sound.masterGain.gain.setValueAtTime(0.0, sound.ctx.currentTime);
+          }
+          sound.stopSaucerHum();
+          sound.setTractorLoop(false);
+          if (sound.ctx && sound.ctx.state === 'running') {
+            sound.ctx.suspend().catch(() => {});
           }
         }
       }
