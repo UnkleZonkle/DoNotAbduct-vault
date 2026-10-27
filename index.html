@@ -134,6 +134,14 @@
           <div id="hud-score" class="pixel-font text-[11px] sm:text-sm text-cyan-300 font-bold leading-tight">000</div>
         </div>
       </div>
+      <!-- Speed Tier Readout Badge -->
+      <div class="flex items-center space-x-1 pr-2 border-r border-slate-700/80">
+        <span class="text-[10px] sm:text-xs">⚡</span>
+        <div>
+          <div class="text-[7px] sm:text-[9px] uppercase text-amber-300 font-bold tracking-wider leading-none">Warp</div>
+          <div id="hud-speed" class="pixel-font text-[11px] sm:text-sm text-amber-400 font-bold leading-tight">1.0x</div>
+        </div>
+      </div>
       <div class="flex items-center space-x-1.5 pl-0.5">
         <span class="text-[10px] sm:text-xs">👑</span>
         <div>
@@ -222,6 +230,18 @@
         <div id="scanner-name" class="font-bold text-sm text-white">Target</div>
         <div id="scanner-status" class="pixel-font text-[9px] tracking-wide uppercase">STATUS</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Warp Speed Surge Announcement Banner -->
+  <div id="speed-surge-banner" class="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none transition-all duration-500 opacity-0 transform -translate-y-4 scale-90">
+    <div class="bg-gradient-to-r from-amber-600/90 via-yellow-500/90 to-amber-600/90 border-2 border-yellow-300 rounded-2xl px-6 py-2.5 backdrop-blur-md shadow-2xl shadow-yellow-500/50 flex items-center gap-3">
+      <span class="text-2xl animate-spin">⚡</span>
+      <div class="text-center">
+        <div class="pixel-font text-xs sm:text-sm text-slate-950 font-bold tracking-wider">SPEED SURGE ACTIVATED!</div>
+        <div id="speed-surge-text" class="text-[11px] font-bold text-slate-900 font-mono tracking-tight">VELOCITY BOOSTED 1.5x</div>
+      </div>
+      <span class="text-2xl animate-spin">⚡</span>
     </div>
   </div>
 
@@ -750,6 +770,30 @@
         this.humOsc.frequency.setTargetAtTime(targetFreq, this.ctx.currentTime, 0.1);
       }
 
+      playSpeedSurgeSound() {
+        if (this.isMutedByUser || !this.enabled) return;
+        const dest = this.getMasterDestination();
+        if (!dest) return;
+        const ctx = this.getAudioContext();
+        if (!ctx) return;
+
+        try {
+          const t = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, t);
+          osc.frequency.exponentialRampToValueAtTime(880, t + 0.35);
+          gain.gain.setValueAtTime(0.01, t);
+          gain.gain.linearRampToValueAtTime(0.15, t + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+          osc.connect(gain);
+          gain.connect(dest);
+          osc.start(t);
+          osc.stop(t + 0.46);
+        } catch (e) {}
+      }
+
       playScannerBlip() {
         if (this.isMutedByUser || !this.enabled) return;
         const dest = this.getMasterDestination();
@@ -1079,8 +1123,8 @@
         this.isScanned = false;
 
         const direction = Math.random() < 0.5 ? -1 : 1;
-        const randomSpeed = 0.4 + Math.random() * 0.9;
-        this.vx = direction * randomSpeed;
+        this.baseSpeed = 0.4 + Math.random() * 0.9;
+        this.vx = direction * this.baseSpeed;
 
         this.state = 'WALKING';
         this.fallSpeed = 0;
@@ -1102,6 +1146,11 @@
         const relief = ["PHEW!", "SAFE!", "WHEW!", "THAT WAS CLOSE!"];
         this.bubbleText = relief[Math.floor(Math.random() * relief.length)];
         this.bubbleTimer = 50;
+      }
+
+      applySpeedMultiplier(multiplier) {
+        const dir = this.vx < 0 ? -1 : 1;
+        this.vx = dir * this.baseSpeed * multiplier;
       }
 
       update(dt) {
@@ -1324,12 +1373,19 @@
         this.y = (this.minY + this.maxY) / 2;
         this.vx = 0;
         this.vy = 0;
+        this.baseSpeed = 5.2;
         this.speed = 5.2;
+        this.speedMultiplier = 1.0;
         this.tilt = 0;
 
         this.scannerActive = false;
         this.tractorActive = false;
         this.pulse = 0;
+      }
+
+      setSpeedMultiplier(multiplier) {
+        this.speedMultiplier = multiplier;
+        this.speed = this.baseSpeed * multiplier;
       }
 
       updateBounds(width, height, groundY) {
@@ -1763,6 +1819,7 @@
         this.humans = [];
         this.targetHumanCount = 0;
         this.score = 0;
+        this.speedMultiplier = 1.0;
         this.state = 'START';
         this.targetedHuman = null;
 
@@ -1903,8 +1960,43 @@
 
         const groundLevel = this.world ? this.world.groundY : this.height - 50;
         const newH = new Human(spawnX, groundLevel, this.width);
-        newH.vx = direction * (0.4 + Math.random() * 0.9);
+        newH.applySpeedMultiplier(this.speedMultiplier);
         this.humans.push(newH);
+      }
+
+      getSpeedMultiplierForScore(score) {
+        const tier = Math.floor(score / 10);
+        return Math.pow(1.5, tier);
+      }
+
+      triggerSpeedSurgeBanner(multiplier) {
+        const banner = document.getElementById('speed-surge-banner');
+        const text = document.getElementById('speed-surge-text');
+        if (text) {
+          text.textContent = `VELOCITY BOOSTED TO ${multiplier.toFixed(2).replace(/\.?0+$/, '')}x!`;
+        }
+        if (banner) {
+          banner.classList.remove('opacity-0', '-translate-y-4', 'scale-90');
+          banner.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+          setTimeout(() => {
+            banner.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+            banner.classList.add('opacity-0', '-translate-y-4', 'scale-90');
+          }, 2400);
+        }
+        sound.playSpeedSurgeSound();
+      }
+
+      applySpeedLevel() {
+        const newMultiplier = this.getSpeedMultiplierForScore(this.score);
+        if (Math.abs(newMultiplier - this.speedMultiplier) > 0.001) {
+          const oldTier = Math.floor(this.score / 10);
+          this.speedMultiplier = newMultiplier;
+          this.saucer.setSpeedMultiplier(newMultiplier);
+          this.humans.forEach(h => h.applySpeedMultiplier(newMultiplier));
+          if (oldTier > 0) {
+            this.triggerSpeedSurgeBanner(newMultiplier);
+          }
+        }
       }
 
       bindEvents() {
@@ -2006,6 +2098,8 @@
             if (startModal) startModal.classList.add('hidden');
             this.state = 'PLAYING';
             this.score = 0;
+            this.speedMultiplier = 1.0;
+            this.saucer.setSpeedMultiplier(1.0);
             this.updateHUD();
           });
         }
@@ -2018,6 +2112,8 @@
             const jailModal = document.getElementById('modal-jail');
             if (jailModal) jailModal.classList.add('hidden');
             this.score = 0;
+            this.speedMultiplier = 1.0;
+            this.saucer.setSpeedMultiplier(1.0);
             this.initHumans(this.targetHumanCount);
             this.saucer.x = this.width / 2;
             this.saucer.y = (this.saucer.minY + this.saucer.maxY) / 2;
@@ -2283,12 +2379,17 @@
 
       updateHUD() {
         const hudScore = document.getElementById('hud-score');
+        const hudSpeed = document.getElementById('hud-speed');
         const hudTop = document.getElementById('hud-top-score');
         const hudMobileTop = document.getElementById('hud-mobile-top-score');
 
         const pad = (n) => String(Math.max(0, n)).padStart(3, '0');
 
         if (hudScore) hudScore.textContent = pad(this.score);
+        if (hudSpeed) {
+          const formattedSpeed = this.speedMultiplier.toFixed(2).replace(/\.?0+$/, '');
+          hudSpeed.textContent = `${formattedSpeed}x`;
+        }
 
         let topScore = 0;
         if (window.cloudLeaderboard) {
@@ -2342,9 +2443,9 @@
           const h = this.targetedHuman;
           h.state = 'LIFTING';
 
-          const liftSpeed = 3.6;
+          const liftSpeed = 3.6 * this.speedMultiplier;
           h.y -= liftSpeed;
-          h.x += (this.saucer.x - h.x) * 0.15;
+          h.x += (this.saucer.x - h.x) * (0.15 * Math.min(1.8, this.speedMultiplier));
 
           const liftHeightFraction = Math.max(0, Math.min(1, (h.groundY - h.y) / (h.groundY - this.saucer.y)));
           sound.playHumanDistress(liftHeightFraction);
@@ -2356,6 +2457,7 @@
             } else {
               sound.playAbductionChime();
               this.score++;
+              this.applySpeedLevel();
               this.updateHUD();
 
               registry.release(h.name);
@@ -2372,7 +2474,7 @@
         this.humans.forEach(h => {
           if (h.state === 'LIFTING' && (!this.saucer.tractorActive || h !== this.targetedHuman)) {
             h.state = 'FALLING';
-            h.fallSpeed = 0.5;
+            h.fallSpeed = 0.5 * this.speedMultiplier;
             h.triggerRelief();
           }
           h.update(dt);
