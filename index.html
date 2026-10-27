@@ -392,6 +392,15 @@
       { name: 'CADET_01', city: 'EARTH', score: 4, timestamp: Date.now() - 18000000 }
     ];
 
+    // Months to explicitly omit as there were no scores recorded
+    const EXCLUDED_MONTH_KEYS = new Set([
+      '2026-05',
+      '2026-06',
+      '2026-07',
+      '2026-08',
+      '2026-09'
+    ]);
+
     class MonthlyLeaderboardManager {
       constructor() {
         this.db = null;
@@ -425,11 +434,21 @@
       }
 
       getAvailableMonths() {
-        const months = [this.currentMonthKey];
+        const months = [];
+        if (!EXCLUDED_MONTH_KEYS.has(this.currentMonthKey)) {
+          months.push(this.currentMonthKey);
+        }
         const now = new Date();
-        for (let i = 1; i <= 5; i++) {
+        for (let i = 1; i <= 12; i++) {
           const prev = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          months.push(this.computeMonthKey(prev));
+          const key = this.computeMonthKey(prev);
+          if (!EXCLUDED_MONTH_KEYS.has(key) && !months.includes(key)) {
+            months.push(key);
+          }
+        }
+        // If current month was excluded (safety guard), ensure at least one available month
+        if (months.length === 0) {
+          months.push(this.currentMonthKey);
         }
         return months;
       }
@@ -485,8 +504,6 @@
 
         const currentAppId = typeof appId !== 'undefined' ? appId : 'intergalactic-abduction';
         
-        // Use a standard public doc path: /artifacts/{appId}/public/data/leaderboard_{monthKey}
-        // This adheres to default Firestore rules permitting access within /artifacts/{appId}/public/data
         try {
           const docRef = doc(this.db, 'artifacts', currentAppId, 'public', 'data', `leaderboard_${monthKey}`);
 
@@ -496,20 +513,19 @@
               if (data && Array.isArray(data.entries)) {
                 const list = data.entries.filter(e => e && typeof e.score === 'number');
                 list.sort((a, b) => b.score - a.score);
-                this.cacheByMonth[monthKey] = list.slice(0, 50);
+                // Keep strictly top 5
+                this.cacheByMonth[monthKey] = list.slice(0, 5);
                 this.saveLocalBackup();
                 this.notifyListeners(monthKey);
               }
             } else {
-              // Doc doesn't exist yet for this month; seed with defaults if empty
               if (!this.cacheByMonth[monthKey] || this.cacheByMonth[monthKey].length === 0) {
-                this.cacheByMonth[monthKey] = [...defaultFallbackScores];
+                this.cacheByMonth[monthKey] = defaultFallbackScores.slice(0, 5);
                 this.saveLocalBackup();
                 this.notifyListeners(monthKey);
               }
             }
           }, (error) => {
-            // If security rules disallow real-time listener, warn and retain cached/local records without crashing
             console.warn(`Snapshot listener inactive for ${monthKey} (using local storage):`, error.message || error);
           });
 
@@ -533,17 +549,20 @@
 
       getScores(monthKey = this.currentMonthKey) {
         if (!this.cacheByMonth[monthKey] || this.cacheByMonth[monthKey].length === 0) {
-          this.cacheByMonth[monthKey] = [...defaultFallbackScores];
+          this.cacheByMonth[monthKey] = defaultFallbackScores.slice(0, 5);
           this.listenToMonth(monthKey);
         }
-        return this.cacheByMonth[monthKey];
+        return this.cacheByMonth[monthKey].slice(0, 5);
       }
 
       checkQualifies(score, monthKey = this.currentMonthKey) {
-        if (score <= 0) return false;
+        const numericScore = Number(score) || 0;
+        if (numericScore <= 0) return false;
         const list = this.getScores(monthKey);
-        if (list.length < 10) return true;
-        return score > list[list.length - 1].score;
+        // If there are fewer than 5 entries, any positive score qualifies
+        if (list.length < 5) return true;
+        // Strictly higher than the 5th place (lowest high score on the board)
+        return numericScore > list[list.length - 1].score;
       }
 
       async submitScore(name, city, score) {
@@ -560,7 +579,8 @@
         if (!this.cacheByMonth[monthKey]) this.cacheByMonth[monthKey] = [];
         this.cacheByMonth[monthKey].push(entry);
         this.cacheByMonth[monthKey].sort((a, b) => b.score - a.score);
-        this.cacheByMonth[monthKey] = this.cacheByMonth[monthKey].slice(0, 50);
+        // Retain strictly the top 5 scores, replacing the lower scores
+        this.cacheByMonth[monthKey] = this.cacheByMonth[monthKey].slice(0, 5);
 
         this.saveLocalBackup();
         this.notifyListeners(monthKey);
@@ -570,7 +590,6 @@
             const currentAppId = typeof appId !== 'undefined' ? appId : 'intergalactic-abduction';
             const docRef = doc(this.db, 'artifacts', currentAppId, 'public', 'data', `leaderboard_${monthKey}`);
             
-            // Persist the consolidated sorted list into the permitted document
             await setDoc(docRef, {
               month: monthKey,
               updatedAt: Date.now(),
@@ -602,21 +621,44 @@
         this.modGain = null;
         this.tractorGain = null;
         this.lastScreamTime = 0;
+        this.isUnlocked = false;
       }
 
       init() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+
+        if (this.ctx) {
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+
+          // Mobile Web Audio unlock routine: play a microscopic silent buffer to unlock iOS Safari & Android audio pipe
+          if (!this.isUnlocked && this.ctx.state !== 'closed') {
+            try {
+              const buffer = this.ctx.createBuffer(1, 1, 22050);
+              const source = this.ctx.createBufferSource();
+              source.buffer = buffer;
+              source.connect(this.ctx.destination);
+              source.start(0);
+              this.isUnlocked = true;
+            } catch (e) {}
+          }
+
           this.startSaucerHum();
-        } else if (this.ctx.state === 'suspended') {
-          this.ctx.resume();
         }
       }
 
       startSaucerHum() {
-        if (!this.ctx || this.humOsc) return;
+        if (!this.ctx || this.humOsc || !this.enabled) return;
         try {
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
           this.humOsc = this.ctx.createOscillator();
           this.humGain = this.ctx.createGain();
           this.humOsc.type = 'triangle';
@@ -629,7 +671,7 @@
       }
 
       updateSaucerHum(yFraction, speedFraction) {
-        if (!this.humOsc || !this.enabled || !this.ctx) return;
+        if (!this.humOsc || !this.enabled || !this.ctx || this.ctx.state !== 'running') return;
         const targetFreq = 75 + (1 - yFraction) * 55 + speedFraction * 25;
         this.humOsc.frequency.setTargetAtTime(targetFreq, this.ctx.currentTime, 0.1);
       }
@@ -637,6 +679,7 @@
       playScannerBlip() {
         if (!this.enabled || !this.ctx) return;
         try {
+          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           const t = this.ctx.currentTime;
@@ -655,6 +698,7 @@
       setTractorLoop(active) {
         if (!this.enabled || !this.ctx) return;
         try {
+          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           if (active) {
             if (!this.carrier) {
               const t = this.ctx.currentTime;
@@ -709,6 +753,7 @@
         this.lastScreamTime = now;
 
         try {
+          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           const t = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const filter = this.ctx.createBiquadFilter();
@@ -742,6 +787,7 @@
       playReliefSigh() {
         if (!this.enabled || !this.ctx) return;
         try {
+          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           const t = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const filter = this.ctx.createBiquadFilter();
@@ -770,6 +816,7 @@
       playAbductionChime() {
         if (!this.enabled || !this.ctx) return;
         try {
+          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           const freqs = [523.25, 659.25, 783.99, 1046.50];
           freqs.forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
@@ -790,6 +837,7 @@
       playJailAlarm() {
         if (!this.enabled || !this.ctx) return;
         try {
+          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           this.setTractorLoop(false);
           for (let i = 0; i < 3; i++) {
             const osc = this.ctx.createOscillator();
@@ -1778,6 +1826,21 @@
           setTimeout(() => this.resize(), 150);
         });
 
+        // Global touch / pointer unlock for mobile web audio policy
+        const unlockAudio = () => {
+          sound.init();
+          if (sound.ctx && sound.ctx.state === 'suspended') {
+            sound.ctx.resume().catch(() => {});
+          }
+        };
+        window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+        window.addEventListener('pointerdown', unlockAudio, { once: true, passive: true });
+        window.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible' && sound.enabled && sound.ctx && sound.ctx.state === 'suspended') {
+            sound.ctx.resume().catch(() => {});
+          }
+        });
+
         this.bindLeaderboardSync();
 
         // Touch Control Button Event Listeners for Mobile
@@ -1785,14 +1848,14 @@
           const btn = document.getElementById(id);
           if (!btn) return;
           const startAction = (e) => {
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
             sound.init();
             this.inputs[keyName] = true;
             if (keyName === 'tractor') sound.setTractorLoop(true);
             if (keyName === 'scanner') sound.playScannerBlip();
           };
           const endAction = (e) => {
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
             this.inputs[keyName] = false;
             if (keyName === 'tractor') sound.setTractorLoop(false);
           };
@@ -1882,21 +1945,39 @@
         document.getElementById('btn-sound').addEventListener('click', () => {
           sound.enabled = !sound.enabled;
           document.getElementById('sound-icon').textContent = sound.enabled ? '🔊' : '🔇';
+          if (sound.enabled) {
+            sound.init();
+            if (sound.ctx && sound.ctx.state === 'suspended') {
+              sound.ctx.resume().catch(() => {});
+            }
+          } else if (sound.humGain) {
+            sound.setTractorLoop(false);
+          }
         });
+      }
 
-        document.getElementById('btn-leaderboard').addEventListener('click', () => {
-          this.openLeaderboard();
-        });
+      bindLeaderboardSync() {
+        // Records button opens the leaderboard modal
+        const btnLeaderboard = document.getElementById('btn-leaderboard');
+        if (btnLeaderboard) {
+          btnLeaderboard.addEventListener('click', () => this.openLeaderboard());
+        }
 
-        document.getElementById('btn-close-leaderboard').addEventListener('click', () => {
-          document.getElementById('modal-leaderboard').classList.add('hidden');
-        });
+        // Close buttons for leaderboard modal
+        const btnClose = document.getElementById('btn-close-leaderboard');
+        if (btnClose) {
+          btnClose.addEventListener('click', () => {
+            document.getElementById('modal-leaderboard').classList.add('hidden');
+          });
+        }
+        const btnDismiss = document.getElementById('btn-dismiss-leaderboard');
+        if (btnDismiss) {
+          btnDismiss.addEventListener('click', () => {
+            document.getElementById('modal-leaderboard').classList.add('hidden');
+          });
+        }
 
-        document.getElementById('btn-dismiss-leaderboard').addEventListener('click', () => {
-          document.getElementById('modal-leaderboard').classList.add('hidden');
-        });
-
-        // Month filter selector
+        // Month selector change handler
         const monthSelect = document.getElementById('leaderboard-month-select');
         if (monthSelect) {
           monthSelect.addEventListener('change', (e) => {
@@ -1904,47 +1985,49 @@
           });
         }
 
-        const toggleBtn = document.getElementById('btn-toggle-controls');
-        const controlsBody = document.getElementById('controls-body');
-        if (toggleBtn && controlsBody) {
-          toggleBtn.addEventListener('click', () => {
-            const isHidden = controlsBody.classList.toggle('hidden');
-            toggleBtn.textContent = isHidden ? 'Show ▼' : 'Hide ▲';
+        // High score submit button on game over modal
+        const btnSave = document.getElementById('btn-save-score');
+        if (btnSave) {
+          btnSave.addEventListener('click', async () => {
+            const nameInput = document.getElementById('input-pilot-name');
+            const cityInput = document.getElementById('input-pilot-city');
+            const warnEl = document.getElementById('filter-warning');
+            const rawName = nameInput ? nameInput.value : '';
+            const rawCity = cityInput ? cityInput.value : '';
+
+            const sanitizedName = sanitizeInput(rawName);
+            const sanitizedCity = sanitizeInput(rawCity);
+
+            if (!sanitizedName || !sanitizedCity) {
+              if (warnEl) warnEl.classList.remove('hidden');
+              return;
+            }
+            if (warnEl) warnEl.classList.add('hidden');
+
+            saveHighScoreEntry(sanitizedName, sanitizedCity, this.score);
+            const form = document.getElementById('high-score-form');
+            if (form) form.classList.add('hidden');
+
+            this.updateHUD();
+            this.renderJailLeaderboard();
           });
         }
 
-        document.getElementById('btn-save-score').addEventListener('click', async () => {
-          const rawName = document.getElementById('input-pilot-name').value;
-          const rawCity = document.getElementById('input-pilot-city').value;
-          const warn = document.getElementById('filter-warning');
-
-          const cleanName = sanitizeInput(rawName);
-          const cleanCity = sanitizeInput(rawCity);
-
-          if (!cleanName || !cleanCity) {
-            warn.classList.remove('hidden');
-            return;
-          }
-
-          if (window.cloudLeaderboard) {
-            await window.cloudLeaderboard.submitScore(cleanName, cleanCity, this.score);
-          }
-          document.getElementById('high-score-form').classList.add('hidden');
-          this.renderJailLeaderboard();
-          this.updateHUD();
-        });
-      }
-
-      bindLeaderboardSync() {
-        if (!window.cloudLeaderboard) return;
-        window.cloudLeaderboard.onUpdate((updatedMonth) => {
-          this.updateHUD();
-          this.renderJailLeaderboard();
-          const monthSelect = document.getElementById('leaderboard-month-select');
-          if (monthSelect && monthSelect.value === updatedMonth) {
-            this.renderLeaderboardTable(updatedMonth);
-          }
-        });
+        // Subscribe to live leaderboard updates
+        if (window.cloudLeaderboard) {
+          window.cloudLeaderboard.onUpdate(() => {
+            this.updateHUD();
+            const jailModal = document.getElementById('modal-jail');
+            if (jailModal && !jailModal.classList.contains('hidden')) {
+              this.renderJailLeaderboard();
+            }
+            const lbModal = document.getElementById('modal-leaderboard');
+            if (lbModal && !lbModal.classList.contains('hidden')) {
+              const activeMonth = monthSelect ? monthSelect.value : window.cloudLeaderboard.currentMonthKey;
+              this.renderLeaderboardTable(activeMonth);
+            }
+          });
+        }
       }
 
       restart() {
@@ -1983,7 +2066,7 @@
         // Render current month's leaderboard on Game Over
         this.renderJailLeaderboard();
 
-        // Check if player qualified for a high score entry
+        // Check if player qualified for a high score entry: ONLY ask if higher than the top 5
         const formEl = document.getElementById('high-score-form');
         const warnEl = document.getElementById('filter-warning');
         if (warnEl) warnEl.classList.add('hidden');
