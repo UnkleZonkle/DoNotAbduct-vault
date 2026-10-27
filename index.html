@@ -11,7 +11,7 @@
       box-sizing: border-box;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: manipulation;
+      touch-action: none;
     }
     html, body {
       margin: 0;
@@ -26,6 +26,7 @@
       font-family: 'Rajdhani', sans-serif;
       position: fixed;
       inset: 0;
+      touch-action: none;
     }
     .pixel-font {
       font-family: 'Press Start 2P', monospace;
@@ -59,6 +60,7 @@
       justify-content: center;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .sci-btn:active, .sci-btn.active {
       background: linear-gradient(180deg, #0284c7 0%, #0369a1 60%, #075985 100%);
@@ -113,7 +115,7 @@
 
   <!-- Top Navigation Bar -->
   <header class="absolute top-2 left-2 right-2 flex justify-between items-center z-50 pointer-events-none">
-    <!-- Live Score Readouts (Current Score & High Score - visible on both PC and Mobile) -->
+    <!-- Live Score Readouts (Current Score & High Score) -->
     <div class="pointer-events-auto flex items-center space-x-2 bg-slate-900/95 border-2 border-cyan-400/80 rounded-xl px-2.5 py-1 backdrop-blur-md shadow-lg shadow-cyan-950/80 shrink-0">
       <div class="flex items-center space-x-1.5 pr-2 border-r border-slate-700/80">
         <div class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></div>
@@ -160,7 +162,7 @@
     </div>
   </header>
 
-  <!-- Upper Center Controls HUD (PC ONLY: Centered, larger, hidden on mobile) -->
+  <!-- Upper Center Controls HUD (PC ONLY) -->
   <div id="controls-panel" class="absolute top-16 left-1/2 -translate-x-1/2 z-20 pointer-events-auto bg-slate-900/95 border-2 border-cyan-500/60 backdrop-blur-md rounded-2xl p-4 text-base text-slate-100 min-w-[380px] max-w-md shadow-2xl shadow-cyan-950/70 transition-all duration-200 hidden">
     <div class="flex justify-between items-center border-b border-cyan-500/40 pb-2">
       <div class="flex items-center gap-2">
@@ -213,14 +215,14 @@
     </div>
   </div>
 
-  <!-- Main Game Canvas Container: Occupies remaining vertical height cleanly -->
+  <!-- Main Game Canvas Container -->
   <div id="game-container" class="relative w-full flex-1 min-h-0 overflow-hidden">
     <canvas id="gameCanvas" class="w-full h-full block"></canvas>
   </div>
 
-  <!-- Mobile Touch Controls: Unified Sci-Fi Graphic Controls Dock -->
-  <div id="mobile-touch-controls" class="relative w-full h-[138px] sm:h-[150px] shrink-0 z-30 flex justify-between items-center px-4 py-2 bg-slate-950/98 border-t-2 border-cyan-500/70 shadow-2xl shadow-cyan-950/90 pointer-events-auto">
-    <!-- Left: D-Pad Directionals styled with matching sci-fi metal finish -->
+  <!-- Mobile Touch Controls: Docked Under the Street -->
+  <div id="mobile-touch-controls" class="relative w-full h-[138px] sm:h-[150px] shrink-0 z-30 flex justify-between items-center px-3 py-2 bg-slate-950/98 border-t-2 border-cyan-500/70 shadow-2xl shadow-cyan-950/90 pointer-events-auto">
+    <!-- Left: D-Pad Directionals -->
     <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-900/90 rounded-2xl border border-cyan-500/40 shadow-inner">
       <div></div>
       <button id="touch-up" class="sci-btn w-11 h-10 sm:w-12 sm:h-11 rounded-xl text-lg font-bold">▲</button>
@@ -230,15 +232,16 @@
       <button id="touch-right" class="sci-btn w-11 h-10 sm:w-12 sm:h-11 rounded-xl text-lg font-bold">▶</button>
     </div>
 
-    <!-- Center Status Indicator -->
+    <!-- Center: Mobile Mute Toggle Button -->
     <div class="flex flex-col items-center justify-center text-center px-1">
-      <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse mb-1"></div>
-      <span class="text-[9px] text-cyan-400 font-bold uppercase tracking-wider">Flight Deck</span>
-      <span class="text-[8px] text-slate-400 font-mono">Touch Active</span>
+      <button id="btn-mobile-sound" class="sci-btn px-2.5 py-2 sm:px-3 sm:py-2.5 rounded-2xl flex flex-col items-center justify-center gap-1 border border-cyan-500/50 shadow-lg min-w-[72px]">
+        <span id="mobile-sound-icon" class="text-xl sm:text-2xl leading-none">🔊</span>
+        <span id="mobile-sound-text" class="text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-cyan-300">SOUND ON</span>
+      </button>
     </div>
 
-    <!-- Right: Action Buttons styled with complementary sci-fi graphics -->
-    <div class="flex gap-2.5 p-1.5 bg-slate-900/90 rounded-2xl border border-cyan-500/40 shadow-inner">
+    <!-- Right: Action Buttons -->
+    <div class="flex gap-2 p-1.5 bg-slate-900/90 rounded-2xl border border-cyan-500/40 shadow-inner">
       <button id="touch-scan" class="sci-btn-action-scan w-13 h-18 sm:w-14 sm:h-20 px-2 rounded-2xl font-bold flex flex-col items-center justify-center transition">
         <span class="text-2xl leading-none">🔍</span>
         <span class="mt-1 font-mono text-[9px] font-bold tracking-wider">SCAN</span>
@@ -293,7 +296,7 @@
         </div>
       </div>
 
-      <!-- High Score Entry Form -->
+      <!-- High Score Entry Form (Only shown if score beats at least one top-5 entry) -->
       <div id="high-score-form" class="mb-3 bg-slate-800/80 p-2.5 rounded-xl border border-yellow-500/40 hidden">
         <div class="pixel-font text-[10px] text-yellow-300 mb-1.5">★ NEW HIGH SCORE! ★</div>
         <div class="grid grid-cols-2 gap-2 text-left mb-1.5">
@@ -352,7 +355,7 @@
         <button id="btn-close-leaderboard" class="sci-btn w-7 h-7 rounded-lg text-sm font-bold">✕</button>
       </div>
 
-      <!-- Month selector filter -->
+      <!-- Month selector filter (Omits inactive 2026 months) -->
       <div class="flex items-center justify-between mb-2 text-xs text-slate-300 bg-slate-950 px-2.5 py-1.5 rounded-xl border border-slate-800">
         <span class="font-bold text-[10px] uppercase text-slate-400">Month Season:</span>
         <select id="leaderboard-month-select" class="bg-slate-900 text-yellow-300 font-mono text-xs px-2 py-0.5 rounded border border-slate-700 focus:outline-none focus:border-cyan-400"></select>
@@ -411,7 +414,6 @@
         this.unsubCurrent = null;
         this.currentMonthKey = this.computeMonthKey(new Date());
 
-        // Load local persistence backup first so scores exist immediately without errors
         this.loadLocalBackup();
         this.initFirebase();
       }
@@ -446,7 +448,6 @@
             months.push(key);
           }
         }
-        // If current month was excluded (safety guard), ensure at least one available month
         if (months.length === 0) {
           months.push(this.currentMonthKey);
         }
@@ -491,7 +492,6 @@
 
           this.listenToMonth(this.currentMonthKey);
         } catch (err) {
-          // Gracefully fall back to local offline storage if auth or remote config is restricted
           console.warn("Storage operating in resilient offline/local mode:", err.message || err);
         }
       }
@@ -513,7 +513,6 @@
               if (data && Array.isArray(data.entries)) {
                 const list = data.entries.filter(e => e && typeof e.score === 'number');
                 list.sort((a, b) => b.score - a.score);
-                // Keep strictly top 5
                 this.cacheByMonth[monthKey] = list.slice(0, 5);
                 this.saveLocalBackup();
                 this.notifyListeners(monthKey);
@@ -559,9 +558,7 @@
         const numericScore = Number(score) || 0;
         if (numericScore <= 0) return false;
         const list = this.getScores(monthKey);
-        // If there are fewer than 5 entries, any positive score qualifies
         if (list.length < 5) return true;
-        // Strictly higher than the 5th place (lowest high score on the board)
         return numericScore > list[list.length - 1].score;
       }
 
@@ -579,7 +576,6 @@
         if (!this.cacheByMonth[monthKey]) this.cacheByMonth[monthKey] = [];
         this.cacheByMonth[monthKey].push(entry);
         this.cacheByMonth[monthKey].sort((a, b) => b.score - a.score);
-        // Retain strictly the top 5 scores, replacing the lower scores
         this.cacheByMonth[monthKey] = this.cacheByMonth[monthKey].slice(0, 5);
 
         this.saveLocalBackup();
@@ -608,7 +604,7 @@
     }
   </script>
 
-  <!-- Sound Engine -->
+  <!-- Robust Web Audio Sound Engine -->
   <script>
     class SoundEngine {
       constructor() {
@@ -622,13 +618,14 @@
         this.tractorGain = null;
         this.lastScreamTime = 0;
         this.isUnlocked = false;
+        this.keepaliveNode = null;
       }
 
       init() {
         if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (AudioContext) {
-            this.ctx = new AudioContext();
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtxClass) {
+            this.ctx = new AudioCtxClass();
           }
         }
 
@@ -637,7 +634,6 @@
             this.ctx.resume().catch(() => {});
           }
 
-          // Mobile Web Audio unlock routine: play a microscopic silent buffer to unlock iOS Safari & Android audio pipe
           if (!this.isUnlocked && this.ctx.state !== 'closed') {
             try {
               const buffer = this.ctx.createBuffer(1, 1, 22050);
@@ -645,11 +641,30 @@
               source.buffer = buffer;
               source.connect(this.ctx.destination);
               source.start(0);
+
+              const keepOsc = this.ctx.createOscillator();
+              const keepGain = this.ctx.createGain();
+              keepGain.gain.setValueAtTime(0.00001, this.ctx.currentTime);
+              keepOsc.connect(keepGain);
+              keepGain.connect(this.ctx.destination);
+              keepOsc.start();
+              this.keepaliveNode = keepOsc;
+
               this.isUnlocked = true;
             } catch (e) {}
           }
 
-          this.startSaucerHum();
+          if (this.enabled) {
+            this.startSaucerHum();
+          }
+        }
+      }
+
+      ensureActive() {
+        if (!this.ctx) {
+          this.init();
+        } else if (this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
         }
       }
 
@@ -670,6 +685,17 @@
         } catch (e) {}
       }
 
+      stopSaucerHum() {
+        if (this.humOsc) {
+          try {
+            this.humOsc.stop();
+            this.humOsc.disconnect();
+          } catch (e) {}
+          this.humOsc = null;
+          this.humGain = null;
+        }
+      }
+
       updateSaucerHum(yFraction, speedFraction) {
         if (!this.humOsc || !this.enabled || !this.ctx || this.ctx.state !== 'running') return;
         const targetFreq = 75 + (1 - yFraction) * 55 + speedFraction * 25;
@@ -677,9 +703,10 @@
       }
 
       playScannerBlip() {
-        if (!this.enabled || !this.ctx) return;
+        if (!this.enabled) return;
+        this.ensureActive();
+        if (!this.ctx) return;
         try {
-          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           const t = this.ctx.currentTime;
@@ -696,9 +723,13 @@
       }
 
       setTractorLoop(active) {
-        if (!this.enabled || !this.ctx) return;
+        if (!this.enabled) {
+          if (this.carrier) this.setTractorLoop(false);
+          return;
+        }
+        this.ensureActive();
+        if (!this.ctx) return;
         try {
-          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           if (active) {
             if (!this.carrier) {
               const t = this.ctx.currentTime;
@@ -747,13 +778,14 @@
       }
 
       playHumanDistress(heightFactor) {
-        if (!this.enabled || !this.ctx) return;
+        if (!this.enabled) return;
+        this.ensureActive();
+        if (!this.ctx) return;
         const now = performance.now();
         if (now - this.lastScreamTime < 280) return;
         this.lastScreamTime = now;
 
         try {
-          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           const t = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const filter = this.ctx.createBiquadFilter();
@@ -785,9 +817,10 @@
       }
 
       playReliefSigh() {
-        if (!this.enabled || !this.ctx) return;
+        if (!this.enabled) return;
+        this.ensureActive();
+        if (!this.ctx) return;
         try {
-          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           const t = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const filter = this.ctx.createBiquadFilter();
@@ -814,9 +847,10 @@
       }
 
       playAbductionChime() {
-        if (!this.enabled || !this.ctx) return;
+        if (!this.enabled) return;
+        this.ensureActive();
+        if (!this.ctx) return;
         try {
-          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           const freqs = [523.25, 659.25, 783.99, 1046.50];
           freqs.forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
@@ -835,9 +869,10 @@
       }
 
       playJailAlarm() {
-        if (!this.enabled || !this.ctx) return;
+        if (!this.enabled) return;
+        this.ensureActive();
+        if (!this.ctx) return;
         try {
-          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           this.setTractorLoop(false);
           for (let i = 0; i < 3; i++) {
             const osc = this.ctx.createOscillator();
@@ -1049,17 +1084,28 @@
         if (this.bubbleTimer > 0) this.bubbleTimer--;
       }
 
-      draw(ctx, isTargeted) {
+      draw(ctx, isTargeted, isMobile = false) {
         ctx.save();
         ctx.translate(this.x, this.y);
 
+        // Ground ring around feet
         if (isTargeted) {
           ctx.beginPath();
-          ctx.ellipse(0, 0, 18, 6, 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(6, 182, 212, 0.4)';
+          ctx.ellipse(0, 0, 20, 7, 0, 0, Math.PI * 2);
+          if (this.isScanned) {
+            if (this.hasDoNotAbductCard) {
+              ctx.fillStyle = 'rgba(239, 68, 68, 0.45)';
+              ctx.strokeStyle = '#ef4444';
+            } else {
+              ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
+              ctx.strokeStyle = '#10b981';
+            }
+          } else {
+            ctx.fillStyle = 'rgba(6, 182, 212, 0.35)';
+            ctx.strokeStyle = '#22d3ee';
+          }
           ctx.fill();
-          ctx.strokeStyle = '#22d3ee';
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 2.5;
           ctx.stroke();
         }
 
@@ -1161,42 +1207,46 @@
           ctx.strokeRect(-5, bodyY, 10, 3);
         }
 
-        // Scanned Hologram Badge
+        // Scanned Hologram Badge (Enlarged for readability on Mobile)
         if (this.isScanned) {
-          const badgeY = bodyY - 18;
+          const badgeY = bodyY - (isMobile ? 22 : 18);
           if (this.hasDoNotAbductCard) {
             ctx.save();
             ctx.shadowColor = '#ef4444';
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = 10;
             ctx.fillStyle = '#dc2626';
+            const bw = isMobile ? 96 : 70;
+            const bh = isMobile ? 20 : 16;
             ctx.beginPath();
-            ctx.roundRect(-35, badgeY - 11, 70, 16, 4);
+            ctx.roundRect(-bw / 2, badgeY - bh / 2, bw, bh, 5);
             ctx.fill();
             ctx.strokeStyle = '#fca5a5';
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = isMobile ? 2 : 1.5;
             ctx.stroke();
 
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 8px monospace';
+            ctx.font = isMobile ? 'bold 10px monospace' : 'bold 8px monospace';
             ctx.textAlign = 'center';
-            ctx.fillText("⛔ PASS EXEMPT", 0, badgeY + 1);
+            ctx.fillText("⛔ PASS EXEMPT", 0, badgeY + (isMobile ? 3.5 : 2.5));
             ctx.restore();
           } else {
             ctx.save();
             ctx.shadowColor = '#10b981';
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = 10;
             ctx.fillStyle = '#059669';
+            const bw = isMobile ? 120 : 84;
+            const bh = isMobile ? 20 : 16;
             ctx.beginPath();
-            ctx.roundRect(-42, badgeY - 11, 84, 16, 4);
+            ctx.roundRect(-bw / 2, badgeY - bh / 2, bw, bh, 5);
             ctx.fill();
             ctx.strokeStyle = '#6ee7b7';
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = isMobile ? 2 : 1.5;
             ctx.stroke();
 
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 8px monospace';
+            ctx.font = isMobile ? 'bold 10px monospace' : 'bold 8px monospace';
             ctx.textAlign = 'center';
-            ctx.fillText("✓ CLEAR FOR ABDUCTION", 0, badgeY + 1);
+            ctx.fillText("✓ CLEAR FOR ABDUCTION", 0, badgeY + (isMobile ? 3.5 : 2.5));
             ctx.restore();
           }
         }
@@ -1205,7 +1255,7 @@
         if (this.bubbleTimer > 0) {
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.roundRect(-32, bodyY - 42, 64, 16, 4);
+          ctx.roundRect(-34, bodyY - 44, 68, 16, 4);
           ctx.fill();
           ctx.strokeStyle = this.state === 'LIFTING' ? '#ef4444' : '#10b981';
           ctx.lineWidth = 1.5;
@@ -1214,7 +1264,7 @@
           ctx.fillStyle = this.state === 'LIFTING' ? '#dc2626' : '#047857';
           ctx.font = 'bold 8px "Rajdhani", sans-serif';
           ctx.textAlign = 'center';
-          ctx.fillText(this.bubbleText, 0, bodyY - 31);
+          ctx.fillText(this.bubbleText, 0, bodyY - 33);
         }
 
         ctx.restore();
@@ -1504,9 +1554,6 @@
         this.width = width;
         this.height = height;
 
-        // Position street safely above the bottom of the canvas
-        // On mobile, the canvas element itself is already positioned above the dock,
-        // but we add a 40px street margin to guarantee full visibility.
         const streetBaseMargin = isMobile ? 42 : 52;
         this.groundY = Math.max(160, height - streetBaseMargin);
 
@@ -1729,11 +1776,9 @@
       }
 
       resize() {
-        // Use visualViewport if available to account for mobile browser UI (address bar, navigation gestures)
         const viewportW = window.visualViewport ? window.visualViewport.width : window.innerWidth;
         const viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
 
-        // Force body and root dimensions to avoid any scrolling
         document.body.style.width = `${viewportW}px`;
         document.body.style.height = `${viewportH}px`;
 
@@ -1817,6 +1862,33 @@
         this.humans.push(newH);
       }
 
+      toggleSound() {
+        sound.enabled = !sound.enabled;
+        const soundIcon = document.getElementById('sound-icon');
+        const mobIcon = document.getElementById('mobile-sound-icon');
+        const mobText = document.getElementById('mobile-sound-text');
+
+        if (sound.enabled) {
+          if (soundIcon) soundIcon.textContent = '🔊';
+          if (mobIcon) mobIcon.textContent = '🔊';
+          if (mobText) {
+            mobText.textContent = 'SOUND ON';
+            mobText.className = 'text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-cyan-300';
+          }
+          sound.ensureActive();
+          sound.startSaucerHum();
+        } else {
+          if (soundIcon) soundIcon.textContent = '🔇';
+          if (mobIcon) mobIcon.textContent = '🔇';
+          if (mobText) {
+            mobText.textContent = 'MUTED';
+            mobText.className = 'text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-rose-400';
+          }
+          sound.stopSaucerHum();
+          sound.setTractorLoop(false);
+        }
+      }
+
       bindEvents() {
         window.addEventListener('resize', () => this.resize());
         if (window.visualViewport) {
@@ -1826,30 +1898,42 @@
           setTimeout(() => this.resize(), 150);
         });
 
-        // Global touch / pointer unlock for mobile web audio policy
+        // Anti-Zooming Guardrails for iOS & Android
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('gesturechange', (e) => e.preventDefault());
+        document.addEventListener('gestureend', (e) => e.preventDefault());
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+          const now = performance.now();
+          if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+          }
+          lastTouchEnd = now;
+        }, { passive: false });
+
+        // Mobile Web Audio unlock routine
         const unlockAudio = () => {
           sound.init();
-          if (sound.ctx && sound.ctx.state === 'suspended') {
-            sound.ctx.resume().catch(() => {});
-          }
+          sound.ensureActive();
         };
-        window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
-        window.addEventListener('pointerdown', unlockAudio, { once: true, passive: true });
+        window.addEventListener('touchstart', unlockAudio, { passive: true });
+        window.addEventListener('pointerdown', unlockAudio, { passive: true });
         window.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible' && sound.enabled && sound.ctx && sound.ctx.state === 'suspended') {
-            sound.ctx.resume().catch(() => {});
+          if (document.visibilityState === 'visible' && sound.enabled) {
+            sound.ensureActive();
           }
         });
 
         this.bindLeaderboardSync();
 
-        // Touch Control Button Event Listeners for Mobile
+        // Mobile Touch Button Listeners
         const bindTouchBtn = (id, keyName) => {
           const btn = document.getElementById(id);
           if (!btn) return;
           const startAction = (e) => {
             if (e.cancelable) e.preventDefault();
-            sound.init();
+            sound.ensureActive();
             this.inputs[keyName] = true;
             if (keyName === 'tractor') sound.setTractorLoop(true);
             if (keyName === 'scanner') sound.playScannerBlip();
@@ -1876,9 +1960,27 @@
         bindTouchBtn('touch-scan', 'scanner');
         bindTouchBtn('touch-beam', 'tractor');
 
+        // Center Mobile Sound Mute Button
+        const btnMobSound = document.getElementById('btn-mobile-sound');
+        if (btnMobSound) {
+          btnMobSound.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.toggleSound();
+          });
+        }
+
+        // Top Header Sound Button
+        const btnSound = document.getElementById('btn-sound');
+        if (btnSound) {
+          btnSound.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.toggleSound();
+          });
+        }
+
         // Keyboard Controls
         window.addEventListener('keydown', (e) => {
-          sound.init();
+          sound.ensureActive();
           const k = e.key.toLowerCase();
           if (k === 'arrowleft' || k === 'a') this.inputs.left = true;
           if (k === 'arrowright' || k === 'd') this.inputs.right = true;
@@ -1909,7 +2011,7 @@
 
         // Mouse Controls on Canvas
         this.canvas.addEventListener('mousedown', (e) => {
-          sound.init();
+          sound.ensureActive();
           if (e.button === 0) {
             this.inputs.tractor = true;
             sound.setTractorLoop(true);
@@ -1933,6 +2035,7 @@
         // UI Modals
         document.getElementById('btn-start-game').addEventListener('click', () => {
           sound.init();
+          sound.ensureActive();
           document.getElementById('modal-start').classList.add('hidden');
           this.state = 'PLAYING';
           this.updateHUD();
@@ -1942,28 +2045,26 @@
           this.restart();
         });
 
-        document.getElementById('btn-sound').addEventListener('click', () => {
-          sound.enabled = !sound.enabled;
-          document.getElementById('sound-icon').textContent = sound.enabled ? '🔊' : '🔇';
-          if (sound.enabled) {
-            sound.init();
-            if (sound.ctx && sound.ctx.state === 'suspended') {
-              sound.ctx.resume().catch(() => {});
+        // Controls toggle button (Desktop)
+        const btnToggleControls = document.getElementById('btn-toggle-controls');
+        if (btnToggleControls) {
+          btnToggleControls.addEventListener('click', () => {
+            const body = document.getElementById('controls-body');
+            if (body) {
+              const isHidden = body.classList.contains('hidden');
+              body.classList.toggle('hidden');
+              btnToggleControls.textContent = isHidden ? 'Hide ▲' : 'Show ▼';
             }
-          } else if (sound.humGain) {
-            sound.setTractorLoop(false);
-          }
-        });
+          });
+        }
       }
 
       bindLeaderboardSync() {
-        // Records button opens the leaderboard modal
         const btnLeaderboard = document.getElementById('btn-leaderboard');
         if (btnLeaderboard) {
           btnLeaderboard.addEventListener('click', () => this.openLeaderboard());
         }
 
-        // Close buttons for leaderboard modal
         const btnClose = document.getElementById('btn-close-leaderboard');
         if (btnClose) {
           btnClose.addEventListener('click', () => {
@@ -1977,7 +2078,6 @@
           });
         }
 
-        // Month selector change handler
         const monthSelect = document.getElementById('leaderboard-month-select');
         if (monthSelect) {
           monthSelect.addEventListener('change', (e) => {
@@ -1985,7 +2085,6 @@
           });
         }
 
-        // High score submit button on game over modal
         const btnSave = document.getElementById('btn-save-score');
         if (btnSave) {
           btnSave.addEventListener('click', async () => {
@@ -2013,7 +2112,6 @@
           });
         }
 
-        // Subscribe to live leaderboard updates
         if (window.cloudLeaderboard) {
           window.cloudLeaderboard.onUpdate(() => {
             this.updateHUD();
@@ -2052,7 +2150,6 @@
         sound.setTractorLoop(false);
         sound.playJailAlarm();
 
-        // Update Jail modal text & values
         const victimEl = document.getElementById('jail-victim');
         if (victimEl) {
           victimEl.textContent = `${victim.name} (${victim.profession})`;
@@ -2063,10 +2160,8 @@
           finalScoreEl.textContent = String(this.score || 0);
         }
 
-        // Render current month's leaderboard on Game Over
         this.renderJailLeaderboard();
 
-        // Check if player qualified for a high score entry: ONLY ask if higher than the top 5
         const formEl = document.getElementById('high-score-form');
         const warnEl = document.getElementById('filter-warning');
         if (warnEl) warnEl.classList.add('hidden');
@@ -2084,7 +2179,6 @@
           }
         }
 
-        // Show the Game Over / Jail Modal
         const modalJail = document.getElementById('modal-jail');
         if (modalJail) {
           modalJail.classList.remove('hidden');
@@ -2166,7 +2260,6 @@
         const el = document.getElementById('hud-score');
         if (el) el.textContent = currentStr;
         
-        // Update both desktop and mobile high score displays
         const topEl = document.getElementById('hud-top-score');
         if (topEl) topEl.textContent = topStr;
         
@@ -2309,7 +2402,7 @@
 
         this.humans.forEach(h => {
           const isTargeted = (h === this.targetedHuman);
-          h.draw(this.ctx, isTargeted);
+          h.draw(this.ctx, isTargeted, this.isTouchDevice);
         });
 
         this.saucer.draw(this.ctx);
