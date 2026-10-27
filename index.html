@@ -103,15 +103,15 @@
     </div>
 
     <!-- Sound & Leaderboard Buttons -->
-    <div class="pointer-events-auto flex gap-1.5 shrink-0">
-      <button id="btn-sound" class="bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/50 text-cyan-300 px-2.5 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow">
-        <span id="sound-icon">🔊</span>
-      </button>
-      <button id="btn-leaderboard" class="bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/50 text-cyan-300 px-2.5 py-1 rounded-xl text-xs font-bold transition shadow hover:text-white">
-        🏆 Records
-      </button>
-    </div>
-  </header>
+  <div class="pointer-events-auto flex gap-1.5 shrink-0">
+    <button id="btn-sound" class="bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/50 text-cyan-300 px-2.5 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow">
+      <span id="sound-icon">🔊</span>
+    </button>
+    <button id="btn-leaderboard" class="bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/50 text-cyan-300 px-2.5 py-1 rounded-xl text-xs font-bold transition shadow hover:text-white">
+      🏆 Records
+    </button>
+  </div>
+</header>
 
   <!-- Upper Center Controls HUD (PC ONLY: Centered, larger, hidden on mobile) -->
   <div id="controls-panel" class="absolute top-16 left-1/2 -translate-x-1/2 z-20 pointer-events-auto bg-slate-900/95 border-2 border-cyan-500/60 backdrop-blur-md rounded-2xl p-4 text-base text-slate-100 min-w-[380px] max-w-md shadow-2xl shadow-cyan-950/70 transition-all duration-200 hidden">
@@ -265,97 +265,244 @@
       </div>
 
       <!-- Always-Visible Leaderboard on Game Over -->
-      <div class="mb-3 bg-slate-950/90 border border-cyan-500/30 rounded-xl p-2.5 text-left">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-1 mb-1.5">
-          <div class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
-            <span>🏆</span> Galactic Leaderboard
-          </div>
-          <div class="text-[9px] text-slate-500 font-mono">Top Records</div>
+    <div class="mb-3 bg-slate-950/90 border border-cyan-500/30 rounded-xl p-2.5 text-left">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-1 mb-1.5">
+        <div class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
+          <span>🏆</span> <span id="jail-leaderboard-month-label">This Month's Top Records</span>
         </div>
-        <div class="max-h-24 overflow-y-auto pr-1">
-          <table class="w-full text-left text-[11px] font-mono">
-            <thead>
-              <tr class="text-slate-500 text-[9px] uppercase border-b border-slate-900">
-                <th class="py-0.5 px-1">#</th>
-                <th class="py-0.5 px-1">Pilot</th>
-                <th class="py-0.5 px-1">City</th>
-                <th class="py-0.5 px-1 text-right">Score</th>
-              </tr>
-            </thead>
-            <tbody id="jail-leaderboard-body" class="divide-y divide-slate-900"></tbody>
-          </table>
-        </div>
+        <div id="jail-sync-status" class="text-[9px] text-emerald-400 font-mono">● LIVE SYNC</div>
       </div>
-
-      <button id="btn-restart" class="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg transition active:scale-95 text-xs uppercase tracking-wider">
-        Pay Bail & Try Again
-      </button>
-    </div>
-  </div>
-
-  <!-- Leaderboard Modal -->
-  <div id="modal-leaderboard" class="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
-    <div class="max-w-md w-full bg-slate-900 border border-cyan-500/50 rounded-2xl p-5 glow-cyan flex flex-col max-h-[85vh]">
-      <div class="flex justify-between items-center mb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🏆</span>
-          <h3 class="pixel-font text-cyan-400 text-xs sm:text-sm">GLOBAL INTERGALACTIC RECORDS</h3>
-        </div>
-        <button id="btn-close-leaderboard" class="text-slate-400 hover:text-white font-bold px-2 py-1">✕</button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto mb-3 border border-slate-800 rounded-xl bg-slate-950 p-2 min-h-[160px]">
-        <table id="leaderboard-table" class="w-full text-left text-xs font-mono">
+      <div class="max-h-24 overflow-y-auto pr-1">
+        <table class="w-full text-left text-[11px] font-mono">
           <thead>
-            <tr class="text-slate-400 border-b border-slate-800 text-[10px] uppercase">
-              <th class="py-1 px-2">#</th>
-              <th class="py-1 px-2">Pilot</th>
-              <th class="py-1 px-2">City</th>
-              <th class="py-1 px-2 text-right">Score</th>
+            <tr class="text-slate-500 text-[9px] uppercase border-b border-slate-900">
+              <th class="py-0.5 px-1">#</th>
+              <th class="py-0.5 px-1">Pilot</th>
+              <th class="py-0.5 px-1">City</th>
+              <th class="py-0.5 px-1 text-right">Score</th>
             </tr>
           </thead>
-          <tbody id="leaderboard-body" class="divide-y divide-slate-800/60"></tbody>
+          <tbody id="jail-leaderboard-body" class="divide-y divide-slate-900"></tbody>
         </table>
       </div>
-
-      <button id="btn-dismiss-leaderboard" class="w-full bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold py-2 rounded-xl text-xs uppercase tracking-wider">
-        Close
-      </button>
     </div>
+
+    <button id="btn-restart" class="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg transition active:scale-95 text-xs uppercase tracking-wider">
+      Pay Bail & Try Again
+    </button>
   </div>
+</div>
 
-  <!-- Leaderboard Manager -->
-  <script>
-    class LeaderboardManager {
-      constructor() {
-        this.records = [
-          { name: "ZORBLAX", city: "ROSWELL", score: 20 },
-          { name: "GLIESE-9", city: "TOKYO", score: 15 },
-          { name: "NEBULA", city: "LONDON", score: 11 },
-          { name: "XENON", city: "AUSTIN", score: 7 },
-          { name: "CYGNUS", city: "BERLIN", score: 4 }
-        ];
+<!-- Leaderboard Modal -->
+<div id="modal-leaderboard" class="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-4">
+  <div class="max-w-md w-full bg-slate-900 border border-cyan-500/50 rounded-2xl p-5 glow-cyan flex flex-col max-h-[85vh]">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🏆</span>
+        <h3 class="pixel-font text-cyan-400 text-xs sm:text-sm">GALACTIC MONTHLY RECORDS</h3>
+      </div>
+      <button id="btn-close-leaderboard" class="text-slate-400 hover:text-white font-bold px-2 py-1">✕</button>
+    </div>
+
+    <!-- Month selector filter -->
+    <div class="flex items-center justify-between mb-2 text-xs text-slate-300 bg-slate-950 px-2.5 py-1.5 rounded-xl border border-slate-800">
+      <span class="font-bold text-[10px] uppercase text-slate-400">Month Season:</span>
+      <select id="leaderboard-month-select" class="bg-slate-900 text-yellow-300 font-mono text-xs px-2 py-0.5 rounded border border-slate-700 focus:outline-none focus:border-cyan-400"></select>
+    </div>
+
+    <div class="flex-1 overflow-y-auto mb-3 border border-slate-800 rounded-xl bg-slate-950 p-2 min-h-[160px]">
+      <table id="leaderboard-table" class="w-full text-left text-xs font-mono">
+        <thead>
+          <tr class="text-slate-400 border-b border-slate-800 text-[10px] uppercase">
+            <th class="py-1 px-2">#</th>
+            <th class="py-1 px-2">Pilot</th>
+            <th class="py-1 px-2">City</th>
+            <th class="py-1 px-2 text-right">Score</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body" class="divide-y divide-slate-800/60"></tbody>
+      </table>
+    </div>
+
+    <button id="btn-dismiss-leaderboard" class="w-full bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold py-2 rounded-xl text-xs uppercase tracking-wider">
+      Close
+    </button>
+  </div>
+</div>
+
+<!-- Firebase Modular Cloud Leaderboard Manager -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  const appId = typeof __app_id !== 'undefined' ? __app_id : 'intergalactic-abduction';
+  const defaultFallbackScores = [
+    { name: "ZORBLAX", city: "ROSWELL", score: 20 },
+    { name: "GLIESE-9", city: "TOKYO", score: 15 },
+    { name: "NEBULA", city: "LONDON", score: 11 },
+    { name: "XENON", city: "AUSTIN", score: 7 },
+    { name: "CYGNUS", city: "BERLIN", score: 4 }
+  ];
+
+  class MonthlyLeaderboardManager {
+    constructor() {
+      this.currentMonthKey = this.getCurrentMonthKey();
+      this.cacheByMonth = {};
+      this.cacheByMonth[this.currentMonthKey] = [...defaultFallbackScores];
+      this.listeners = new Set();
+      this.db = null;
+      this.auth = null;
+      this.user = null;
+      this.unsubCurrent = null;
+
+      this.initFirebase();
+    }
+
+    getCurrentMonthKey(d = new Date()) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      return `${year}-${month}`;
+    }
+
+    formatMonthLabel(key) {
+      const [year, month] = key.split('-');
+      const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+      return date.toLocaleString('default', { month: 'short', year: 'numeric' }).toUpperCase();
+    }
+
+    getAvailableMonths() {
+      const current = new Date();
+      const months = [];
+      for (let i = 0; i < 6; i++) {
+        const d = new Date(current.getFullYear(), current.getMonth() - i, 1);
+        months.push(this.getCurrentMonthKey(d));
       }
+      return months;
+    }
 
-      getScores() {
-        return this.records;
-      }
+    async initFirebase() {
+      try {
+        if (typeof __firebase_config === 'undefined') {
+          console.log("Firebase config not available, using in-memory month scores");
+          return;
+        }
 
-      checkQualifies(score) {
-        if (score <= 0) return false;
-        if (this.records.length < 5) return true;
-        return score > this.records[this.records.length - 1].score;
-      }
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        this.auth = getAuth(app);
+        this.db = getFirestore(app);
 
-      submitScore(name, city, score) {
-        this.records.push({ name, city, score, timestamp: Date.now() });
-        this.records.sort((a, b) => b.score - a.score);
-        this.records = this.records.slice(0, 10);
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(this.auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(this.auth);
+        }
+        this.user = this.auth.currentUser;
+
+        this.listenToMonth(this.currentMonthKey);
+      } catch (err) {
+        console.error("Cloud storage init failed, running offline memory mode:", err);
       }
     }
 
-    window.cloudLeaderboard = new LeaderboardManager();
-  </script>
+    listenToMonth(monthKey) {
+      if (!this.db || !this.user) return;
+      if (this.unsubCurrent && monthKey === this.currentMonthKey) {
+        return;
+      }
+
+      // Rule 1: /artifacts/{appId}/public/data/{collectionName}
+      // Rule 2: simple collection query, in-memory sort
+      const collectionName = `highscores_${monthKey}`;
+      const colRef = collection(this.db, 'artifacts', appId, 'public', 'data', collectionName);
+
+      const unsub = onSnapshot(colRef, (snapshot) => {
+        const list = [];
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          if (data && typeof data.score === 'number') {
+            list.push({
+              name: data.name || 'PILOT',
+              city: data.city || 'EARTH',
+              score: data.score,
+              timestamp: data.timestamp || 0
+            });
+          }
+        });
+
+        list.sort((a, b) => b.score - a.score);
+        this.cacheByMonth[monthKey] = list.length > 0 ? list.slice(0, 50) : [...defaultFallbackScores];
+        this.notifyListeners(monthKey);
+      }, (error) => {
+        console.error(`Snapshot error for ${monthKey}:`, error);
+      });
+
+      if (monthKey === this.currentMonthKey) {
+        this.unsubCurrent = unsub;
+      }
+    }
+
+    notifyListeners(monthKey) {
+      this.listeners.forEach(cb => {
+        try { cb(monthKey); } catch (e) {}
+      });
+    }
+
+    onUpdate(cb) {
+      this.listeners.add(cb);
+    }
+
+    getScores(monthKey = this.currentMonthKey) {
+      if (!this.cacheByMonth[monthKey]) {
+        this.cacheByMonth[monthKey] = [...defaultFallbackScores];
+        this.listenToMonth(monthKey);
+      }
+      return this.cacheByMonth[monthKey];
+    }
+
+    checkQualifies(score, monthKey = this.currentMonthKey) {
+      if (score <= 0) return false;
+      const list = this.getScores(monthKey);
+      if (list.length < 10) return true;
+      return score > list[list.length - 1].score;
+    }
+
+    async submitScore(name, city, score) {
+      const monthKey = this.currentMonthKey;
+      const entry = {
+        name: name.slice(0, 10).toUpperCase(),
+        city: city.slice(0, 10).toUpperCase(),
+        score: Number(score),
+        month: monthKey,
+        device: ('ontouchstart' in window || navigator.maxTouchPoints > 0) ? 'MOBILE' : 'PC',
+        timestamp: Date.now()
+      };
+
+      // Optimistic local update
+      if (!this.cacheByMonth[monthKey]) this.cacheByMonth[monthKey] = [];
+      this.cacheByMonth[monthKey].push(entry);
+      this.cacheByMonth[monthKey].sort((a, b) => b.score - a.score);
+      this.notifyListeners(monthKey);
+
+      // Cloud storage write
+      if (this.db && this.user) {
+        try {
+          const collectionName = `highscores_${monthKey}`;
+          const colRef = collection(this.db, 'artifacts', appId, 'public', 'data', collectionName);
+          await addDoc(colRef, entry);
+        } catch (err) {
+          console.error("Failed to save high score to cloud:", err);
+        }
+      }
+    }
+  }
+
+  window.cloudLeaderboard = new MonthlyLeaderboardManager();
+  if (window.gameInstance) {
+    window.gameInstance.bindLeaderboardSync();
+  }
+</script>
 
   <!-- Sound Engine -->
   <script>
@@ -1534,6 +1681,8 @@
           setTimeout(() => this.resize(), 150);
         });
 
+        this.bindLeaderboardSync();
+
         // Touch Control Button Event Listeners for Mobile
         const bindTouchBtn = (id, keyName) => {
           const btn = document.getElementById(id);
@@ -1650,6 +1799,14 @@
           document.getElementById('modal-leaderboard').classList.add('hidden');
         });
 
+        // Month filter selector
+        const monthSelect = document.getElementById('leaderboard-month-select');
+        if (monthSelect) {
+          monthSelect.addEventListener('change', (e) => {
+            this.renderLeaderboardTable(e.target.value);
+          });
+        }
+
         const toggleBtn = document.getElementById('btn-toggle-controls');
         const controlsBody = document.getElementById('controls-body');
         if (toggleBtn && controlsBody) {
@@ -1659,7 +1816,7 @@
           });
         }
 
-        document.getElementById('btn-save-score').addEventListener('click', () => {
+        document.getElementById('btn-save-score').addEventListener('click', async () => {
           const rawName = document.getElementById('input-pilot-name').value;
           const rawCity = document.getElementById('input-pilot-city').value;
           const warn = document.getElementById('filter-warning');
@@ -1672,9 +1829,24 @@
             return;
           }
 
-          saveHighScoreEntry(cleanName, cleanCity, this.score);
+          if (window.cloudLeaderboard) {
+            await window.cloudLeaderboard.submitScore(cleanName, cleanCity, this.score);
+          }
           document.getElementById('high-score-form').classList.add('hidden');
           this.renderJailLeaderboard();
+          this.updateHUD();
+        });
+      }
+
+      bindLeaderboardSync() {
+        if (!window.cloudLeaderboard) return;
+        window.cloudLeaderboard.onUpdate((updatedMonth) => {
+          this.updateHUD();
+          this.renderJailLeaderboard();
+          const monthSelect = document.getElementById('leaderboard-month-select');
+          if (monthSelect && monthSelect.value === updatedMonth) {
+            this.renderLeaderboardTable(updatedMonth);
+          }
         });
       }
 
@@ -1696,6 +1868,10 @@
       renderJailLeaderboard() {
         const records = loadHighScores();
         const tbody = document.getElementById('jail-leaderboard-body');
+        const label = document.getElementById('jail-leaderboard-month-label');
+        if (label && window.cloudLeaderboard) {
+          label.textContent = `${window.cloudLeaderboard.formatMonthLabel(window.cloudLeaderboard.currentMonthKey)} Records`;
+        }
         if (!tbody) return;
         tbody.innerHTML = '';
 
@@ -1713,34 +1889,32 @@
         });
       }
 
-      triggerJail(victim) {
-        this.state = 'GAMEOVER';
-        this.inputs.tractor = false;
-        sound.setTractorLoop(false);
-        sound.playJailAlarm();
-
-        document.getElementById('jail-victim').textContent = `${victim.name} (${victim.profession})`;
-        document.getElementById('jail-final-score').textContent = this.score;
-
-        this.renderJailLeaderboard();
-
-        const modal = document.getElementById('modal-jail');
-        modal.classList.remove('hidden');
-
-        const hsForm = document.getElementById('high-score-form');
-        if (checkQualifiesHighScore(this.score)) {
-          hsForm.classList.remove('hidden');
-          document.getElementById('input-pilot-name').value = '';
-          document.getElementById('input-pilot-city').value = '';
-          document.getElementById('filter-warning').classList.add('hidden');
-        } else {
-          hsForm.classList.add('hidden');
+      openLeaderboard() {
+        const monthSelect = document.getElementById('leaderboard-month-select');
+        if (monthSelect && window.cloudLeaderboard) {
+          const available = window.cloudLeaderboard.getAvailableMonths();
+          monthSelect.innerHTML = '';
+          available.forEach(mKey => {
+            const opt = document.createElement('option');
+            opt.value = mKey;
+            opt.textContent = window.cloudLeaderboard.formatMonthLabel(mKey);
+            if (mKey === window.cloudLeaderboard.currentMonthKey) {
+              opt.selected = true;
+            }
+            monthSelect.appendChild(opt);
+          });
         }
+
+        const activeMonth = monthSelect ? monthSelect.value : (window.cloudLeaderboard ? window.cloudLeaderboard.currentMonthKey : '');
+        this.renderLeaderboardTable(activeMonth);
+        document.getElementById('modal-leaderboard').classList.remove('hidden');
       }
 
-      openLeaderboard() {
-        const records = loadHighScores();
+      renderLeaderboardTable(monthKey) {
+        if (!window.cloudLeaderboard) return;
+        const records = window.cloudLeaderboard.getScores(monthKey);
         const tbody = document.getElementById('leaderboard-body');
+        if (!tbody) return;
         tbody.innerHTML = '';
 
         records.forEach((rec, idx) => {
@@ -1755,8 +1929,6 @@
           `;
           tbody.appendChild(tr);
         });
-
-        document.getElementById('modal-leaderboard').classList.remove('hidden');
       }
 
       updateHUD() {
